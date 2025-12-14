@@ -13,33 +13,55 @@
   <div id="liveClock"></div>
   <div class="scroll-progress"></div>
 
-<aside class="sidebar">
-  <div class="sidebar-content">
+  <aside class="sidebar">
+    <div class="sidebar-content">
 
-    <!-- Category Badges - Now at the very top -->
-    <div class="category-badges" id="category-badges"></div>
+      <!-- Category Badges -->
+      <div class="category-badges" id="category-badges"></div>
 
-    <!-- Quick Links -->
-    <div class="quick-links">
-      <a href="https://github.com/syndro-1" target="_blank">GitHub</a>
-      <a href="https://x.com/Syndro_1" target="_blank">X / Twitter</a>
-      <a href="https://discordapp.com/users/313717103150759950" target="_blank">Discord</a>
-      <a href="https://medium.com/@syndro" target="_blank">Medium</a>
-      <a href="https://www.linkedin.com/in/ibrahim-mahmoud-15905a340/" target="_blank">Linked-in</a>
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <a href="https://github.com/syndro-1" target="_blank">GitHub</a>
+        <a href="https://x.com/Syndro_1" target="_blank">X / Twitter</a>
+        <a href="https://discordapp.com/users/313717103150759950" target="_blank">Discord</a>
+        <a href="https://medium.com/@syndro" target="_blank">Medium</a>
+        <a href="https://www.linkedin.com/in/ibrahim-mahmoud-15905a340/" target="_blank">Linked-in</a>
+      </div>
+
+      <!-- Recent Solves -->
+      <div class="recent-solves">
+        <h3>Recent Solves</h3>
+        <ul id="recentSolvesList"></ul>
+      </div>
+
+      <!-- Visitor Counter -->
+      <div class="visitor-counter">
+        <span id="visitorCount">0</span> visitors
+      </div>
+
+      <!-- Feedback Section -->
+<div class="feedback-section">
+      <h3>Feedback</h3>
+      <form id="feedbackForm" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="b0ddf65c-4b48-418e-bebd-d5f6c0d86995">
+        <!-- Optional: Custom subject in your email -->
+        <input type="hidden" name="subject" value="New Feedback from syndro site">
+        <!-- Honeypot spam protection (recommended) -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
+        
+        <input type="text" name="name" placeholder="Your name (optional)" autocomplete="off">
+        <input type="email" name="email" placeholder="Your email (optional)" autocomplete="off">
+        <textarea name="message" placeholder="Your message / feedback..." rows="5" required></textarea>
+        <button type="submit">Send Feedback</button>
+      </form>
+      <div id="formMessage" style="margin-top: 16px; text-align: center; font-weight: bold; display: none;"></div>
+      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 20px; text-align: center;">
+        Messages are private — only I receive them.
+      </p>
     </div>
 
-    <!-- Recent Solves -->
-    <div class="recent-solves">
-      <h3>Recent Solves</h3>
-      <ul id="recentSolvesList"></ul>
     </div>
-
-    <!-- Visitor Counter -->
-    <div class="visitor-counter">
-      <span id="visitorCount">0</span> visitors
-    </div>
-  </div>
-</aside>
+  </aside>
 
   <main class="main-content">
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">

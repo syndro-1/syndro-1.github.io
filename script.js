@@ -63,7 +63,7 @@ const challenges = [
   {title: "Reverse Metadata Part 2", file: "CTF/PatriotCTF2025/Misc/ReverseMetaData2", flag: "PCTF{hidden_****}", type: "misc"}
 ];
 
-// === My CTFs Data ===
+// My CTFs
 const myCTFs = [
   {
     name: "PatriotCTF 2025",
@@ -71,16 +71,14 @@ const myCTFs = [
     status: "Ended",
     link: "CTF/PatriotCTF2025/patriotctf2025"
   },
-   {
-     name: "NiteCTF 2025",
-     solves: "1 solves",
-     status: "Ended",
-     link: "CTF/Nite2025/GraphGrief.html"
-   }
-  ]
+  {
+    name: "NiteCTF 2025",
+    solves: "1 solves",
+    status: "Ended",
+    link: "CTF/Nite2025/GraphGrief.html"
+  }
+];
 
-
-// === Populate My CTFs Modal ===
 function populateMyCTFs() {
   const ctfGrid = document.getElementById("ctfGrid");
   ctfGrid.innerHTML = myCTFs.map(ctf => `
@@ -92,7 +90,6 @@ function populateMyCTFs() {
   `).join('');
 }
 
-// === Category Badges ===
 function updateCategoryStats() {
   const solved = { web: 0, misc: 0, crypto: 0, pwn: 0, forensics: 0 };
   challenges.forEach(c => { if (solved.hasOwnProperty(c.type)) solved[c.type]++; });
@@ -118,12 +115,10 @@ function updateCategoryStats() {
   });
 }
 
-// === Recent Solves ===
 function populateRecentSolves() {
   const list = document.getElementById('recentSolvesList');
   list.innerHTML = '';
   challenges
-    .reverse()
     .slice(-4)
     .reverse()
     .forEach(c => {
@@ -134,7 +129,6 @@ function populateRecentSolves() {
     });
 }
 
-// === Render Challenge Cards ===
 function renderChallenges(filter = 'all') {
   const container = document.getElementById('challengeCards');
   container.innerHTML = '';
@@ -152,14 +146,12 @@ function renderChallenges(filter = 'all') {
       container.appendChild(card);
     });
 
-  // Re-observe new reveal elements
   document.querySelectorAll('.reveal:not(.observed)').forEach(el => {
     observer.observe(el);
     el.classList.add('observed');
   });
 }
 
-// Tabs
 document.querySelectorAll('#challengeTabs .tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#challengeTabs .tab').forEach(t => t.classList.remove('active'));
@@ -168,7 +160,6 @@ document.querySelectorAll('#challengeTabs .tab').forEach(tab => {
   });
 });
 
-// Modal controls
 document.getElementById('ctfToggle').addEventListener('click', () => {
   document.getElementById('ctfModal').classList.add('open');
 });
@@ -179,14 +170,12 @@ document.getElementById('ctfModal').addEventListener('click', e => {
   if (e.target === e.currentTarget) document.getElementById('ctfModal').classList.remove('open');
 });
 
-// Theme toggle
 document.getElementById('themeToggle').addEventListener('click', () => {
   document.documentElement.classList.toggle('light');
   localStorage.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
 });
 if (localStorage.theme === 'light') document.documentElement.classList.add('light');
 
-// Visitor counter
 async function updateVisitorCount() {
   const el = document.getElementById('visitorCount');
   try {
@@ -202,7 +191,6 @@ async function updateVisitorCount() {
   }
 }
 
-// Search bar
 document.getElementById('searchBar').addEventListener('input', e => {
   const term = e.target.value.toLowerCase();
   document.querySelectorAll('.card').forEach(card => {
@@ -210,7 +198,6 @@ document.getElementById('searchBar').addEventListener('input', e => {
   });
 });
 
-// Live clock
 function updateClock() {
   const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   document.getElementById('liveClock').textContent = time;
@@ -218,11 +205,58 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// On load
+// === Web3Forms Inline Submission (No Redirect) ===
+document.getElementById('feedbackForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const formMessage = document.getElementById('formMessage');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  const formData = new FormData(form);
+  const object = Object.fromEntries(formData);
+  const json = JSON.stringify(object);
+
+  try {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: json
+    });
+
+    const result = await response.json();
+
+    if (response.status === 200) {
+      form.reset();
+      formMessage.style.display = 'block';
+      formMessage.style.color = '#00ffff';
+      formMessage.innerHTML = '<strong>Thank you! ❤️</strong><br>Your message was sent successfully.';
+      setTimeout(() => { formMessage.style.display = 'none'; }, 6000);
+    } else {
+      formMessage.style.display = 'block';
+      formMessage.style.color = '#ff6b6b';
+      formMessage.textContent = result.message || 'Something went wrong. Please try again.';
+    }
+  } catch (err) {
+    formMessage.style.display = 'block';
+    formMessage.style.color = '#ff6b6b';
+    formMessage.textContent = 'Connection error. Please try again later.';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Feedback';
+  }
+});
+
 window.addEventListener('load', () => {
   renderChallenges();
   updateCategoryStats();
   populateRecentSolves();
-  populateMyCTFs();     
+  populateMyCTFs();
   updateVisitorCount();
 });
