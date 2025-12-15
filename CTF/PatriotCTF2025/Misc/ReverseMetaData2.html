@@ -253,14 +253,14 @@
     <p>The uploads directory is empty except our shell. Time to break out:</p>
     <pre>ls -la ../../</pre>
 
-    <img src="https://github.com/user-attachments/assets/ec54d5c4-26bc-4d46-9a9e-936edc47b16a" alt="Navigating upwards">
-    <img src="https://github.com/user-attachments/assets/8152e2ba-3484-4330-8e6b-9065fab8bb06" alt="Found log directory">
+    <img src="Pic/ReverseMetadataPart2/2.png" alt="Navigating upwards">
+    <img src="Pic/ReverseMetadataPart2/3.png" alt="Found log directory">
 
     <h2>3. The Winning Move</h2>
     <p>Inside <code>processes.log</code> we finally spot the flag using the classic combo:</p>
     <pre>strings ../../../log/ctf-monitor/processes.log | grep -i "pctf{"</pre>
 
-    <img src="https://github.com/user-attachments/assets/ea786880-85ef-4670-a95b-9b73253a5bfd" alt="Flag found">
+    <img src="Pic/ReverseMetadataPart2/4.png" alt="Flag found">
 
     <div class="flag">
       PCTF{hidden_****}
