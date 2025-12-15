@@ -54,6 +54,7 @@ reveals.forEach(el => observer.observe(el));
 
 const challenges = [
   {title: "Graph grief", file: "CTF/Nite2025/GraphGrief", flag: "nite{Th3_Qu4ntum_****}", type: "web"},
+  {title: "Database Reincursion", file: "CTF/Nite2025/DatabaseReincursion", flag: "nite{neVeR_9Onn4_****}", type: "web"},
   {title: "Connection Tester", file: "CTF/PatriotCTF2025/Web/ConnectionTester", flag: "PCTF{C0nnection_****}", type: "web"},
   {title: "Feedback Fallout", file: "CTF/PatriotCTF2025/Web/FeedbackFallout", flag: "PCTF{SQLI_****}", type: "web"},
   {title: "Secure Auth", file: "CTF/PatriotCTF2025/Web/SecureAuth", flag: "PCTF{cant_****}", type: "web"},
