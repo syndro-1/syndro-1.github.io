@@ -119,6 +119,7 @@ function populateRecentSolves() {
   const list = document.getElementById('recentSolvesList');
   list.innerHTML = '';
   challenges
+    .reverse()
     .slice(-4)
     .reverse()
     .forEach(c => {
