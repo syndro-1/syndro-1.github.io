@@ -526,6 +526,16 @@ body {
   border: 1px solid var(--accent-glow);
 }
 
+.statcounter img {
+  vertical-align: middle;
+  height: 28px; 
+  border: none;
+}
+.visitor-counter {
+  font-size: 1.1rem;
+  color: #00ffff;
+}
+
 .feedback-section h3 {
   color: var(--accent);
   font-size: 1.3rem;
