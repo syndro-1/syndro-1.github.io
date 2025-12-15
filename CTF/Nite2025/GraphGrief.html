@@ -321,9 +321,17 @@ Developer Note: Legacy XML importer may trigger internal file utilities.</pre>
     <p>The error is actually positive - it indicates a successful connection, but the response contains HTML (likely index.html), which breaks XML parsing.</p>
 
     <h2>6. Leaking the GraphQL Schema</h2>
-    <p>Common schema filenames are typically <code>schema.graphql</code> or <code>graphql.schema</code>. Direct attempts fail, so we enumerate deeper paths and discover <code>/internal/file?name=schema.graphql</code>.</p>
+    <p>Common schema filenames are typically <code>schema.graphql</code> or <code>graphql.schema</code>. Direct attempts fail, </p>
 
-    <img src="Pic/13.png" alt="Path enumeration">
+        <img src="Pic/13.png" alt="Path enumeration">
+    
+      So we enumerate deeper paths, and then I remember back in the Developer note section:
+      <code>Developer Note: Legacy  Importer may trigger "INTERNAL FILE" utilities.</code> </p>
+    
+      <img src="Pic/Dev.png" alt="Develoepr note">
+    
+      <p>So discover <code>/internal/file</code>.</p>
+      <p>Now we enumerate that with the schema file.</p>
 
     <p>Final payload:</p>
     <pre>&lt;soap:Body&gt;
