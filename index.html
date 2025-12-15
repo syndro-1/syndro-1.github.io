@@ -2,41 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Syndro's CTF Writeups - Web security enthusiast and competitive CTF player" />
   <title>syndro | CTF Writeups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <canvas id="particles"></canvas>
 
-  <div id="liveClock"></div>
-  <div class="scroll-progress"></div>
+  <!-- Background Particles -->
+  <canvas id="particles" aria-hidden="true"></canvas>
 
-  <aside class="sidebar">
+  <!-- Live Clock -->
+  <div id="liveClock" aria-label="Current time"></div>
+
+<!-- Mobile Navigation Toggle -->
+<button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+  <svg viewBox="0 0 100 100" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+    <rect class="bar" x="10" y="20" width="80" height="8" rx="4" fill="currentColor"/>
+    <rect class="bar" x="10" y="46" width="80" height="8" rx="4" fill="currentColor"/>
+    <rect class="bar" x="10" y="72" width="80" height="8" rx="4" fill="currentColor"/>
+  </svg>
+</button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
     <div class="sidebar-content">
 
       <!-- Category Badges -->
-      <div class="category-badges" id="category-badges"></div>
-
-      <!-- Quick Links -->
-      <div class="quick-links">
-        <a href="https://github.com/syndro-1" target="_blank">GitHub</a>
-        <a href="https://x.com/Syndro_1" target="_blank">X / Twitter</a>
-        <a href="https://discordapp.com/users/313717103150759950" target="_blank">Discord</a>
-        <a href="https://medium.com/@syndro" target="_blank">Medium</a>
-        <a href="https://www.linkedin.com/in/ibrahim-mahmoud-15905a340/" target="_blank">Linked-in</a>
-      </div>
+      <div class="category-badges" id="category-badges" aria-label="Solved categories"></div>
 
       <!-- Recent Solves -->
       <div class="recent-solves">
         <h3>Recent Solves</h3>
-        <ul id="recentSolvesList"></ul>
+        <ul id="recentSolvesList" aria-label="List of recently solved challenges"></ul>
+      </div>
+        <br>
+      <!-- Contacts -->
+      <div class="quick-links">
+        <h3 class="contacts-title">Contacts</h3>
+        <a href="https://github.com/syndro-1" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://x.com/Syndro_1" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="https://discordapp.com/users/313717103150759950" target="_blank" rel="noopener">Discord</a>
+        <a href="https://medium.com/@syndro" target="_blank" rel="noopener">Medium</a>
+        <a href="https://www.linkedin.com/in/ibrahim-mahmoud-15905a340/" target="_blank" rel="noopener">LinkedIn</a>
       </div>
 
-      <!-- Visitor Counter -->
+      <!-- Feedback Section -->
+      <div class="feedback-section">
+        <h3>Feedback</h3>
+        <form id="feedbackForm" novalidate>
+          <input type="hidden" name="access_key" value="b0ddf65c-4b48-418e-bebd-d5f6c0d86995">
+          <input type="hidden" name="subject" value="New Feedback from syndro site">
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
+
+          <input type="text" name="name" placeholder="Your name (optional)" autocomplete="name">
+          <input type="email" name="email" placeholder="Your email (optional)" autocomplete="email">
+          <textarea name="message" placeholder="Your message / feedback..." rows="5" required aria-label="Feedback message"></textarea>
+          <button type="submit">Send Feedback</button>
+        </form>
+        <div id="formMessage" role="alert" aria-live="polite"></div>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 20px; text-align: center;">
+          Messages are private — only I receive them.
+        </p>
+      </div>
+
       <div class="visitor-counter">
-        <p>Visitors:</p>
+        <div class="Visitor-title">
+          <p>Visitors:</p>
+        </div>
 <script type="text/javascript">
 var sc_project=13192699; 
 var sc_invisible=0; 
@@ -54,38 +90,23 @@ src="https://c.statcounter.com/13192699/0/f34343e1/0/"
 alt="counter"
 referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
       </div>
-
-      <!-- Feedback Section -->
-<div class="feedback-section">
-      <h3>Feedback</h3>
-      <form id="feedbackForm" action="https://api.web3forms.com/submit" method="POST">
-        <input type="hidden" name="access_key" value="b0ddf65c-4b48-418e-bebd-d5f6c0d86995">
-        <!-- Optional: Custom subject in your email -->
-        <input type="hidden" name="subject" value="New Feedback from syndro site">
-        <!-- Honeypot spam protection (recommended) -->
-        <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
-        
-        <input type="text" name="name" placeholder="Your name (optional)" autocomplete="off">
-        <input type="email" name="email" placeholder="Your email (optional)" autocomplete="off">
-        <textarea name="message" placeholder="Your message / feedback..." rows="5" required></textarea>
-        <button type="submit">Send Feedback</button>
-      </form>
-      <div id="formMessage" style="margin-top: 16px; text-align: center; font-weight: bold; display: none;"></div>
-      <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 20px; text-align: center;">
-        Messages are private — only I receive them.
-      </p>
-    </div>
-
-    </div>
   </aside>
 
+  <!-- Main Content -->
   <main class="main-content">
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-      <span class="sun">☀</span>
-      <span class="moon">☾</span>
-    </button>
-    <button class="ctf-toggle" id="ctfToggle">My CTFs</button>
 
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+      <span class="sun" aria-hidden="true">☀</span>
+      <span class="moon" aria-hidden="true">☾</span>
+    </button>
+
+    <!-- My CTFs Button -->
+    <button class="ctf-toggle" id="ctfToggle" aria-label="View my participated CTFs">
+      My CTFs
+    </button>
+
+    <!-- Hero Section -->
     <header class="hero reveal">
       <h1 class="hero-title">Syndro</h1>
       <div class="bio-terminal">
@@ -94,32 +115,36 @@ referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
       </div>
     </header>
 
+    <!-- Writeups Section -->
     <section class="writeups reveal">
       <div class="section-header">
         <h2>Writeups</h2>
-        <input type="text" id="searchBar" placeholder="Search titles or flags..." autocomplete="off">
+        <input type="search" id="searchBar" placeholder="Search titles or flags..." aria-label="Search challenges" autocomplete="off">
       </div>
 
-      <div class="tabs" id="challengeTabs">
-        <button class="tab active" data-cat="all">All</button>
-        <button class="tab" data-cat="web">Web</button>
-        <button class="tab" data-cat="misc">Misc</button>
-        <button class="tab" data-cat="crypto">Crypto</button>
-        <button class="tab" data-cat="pwn">Pwn</button>
-        <button class="tab" data-cat="forensics">Forensics</button>
+      <div class="tabs" id="challengeTabs" role="tablist" aria-label="Challenge categories">
+        <button class="tab active" data-cat="all" role="tab" aria-selected="true">All</button>
+        <button class="tab" data-cat="web" role="tab">Web</button>
+        <button class="tab" data-cat="misc" role="tab">Misc</button>
+        <button class="tab" data-cat="crypto" role="tab">Crypto</button>
+        <button class="tab" data-cat="pwn" role="tab">Pwn</button>
+        <button class="tab" data-cat="forensics" role="tab">Forensics</button>
       </div>
 
-      <div class="cards-grid" id="challengeCards"></div>
+      <div class="cards-grid" id="challengeCards" role="region" aria-label="Challenge writeups"></div>
     </section>
-    <br>
-    <footer>syndro © 2025</footer>
+
+    <footer style="text-align: center; padding: 2rem; opacity: 0.7; font-size: 0.9rem;">
+      syndro © 2025
+    </footer>
   </main>
 
-  <div class="modal" id="ctfModal">
+  <!-- My CTFs Modal -->
+  <div class="modal" id="ctfModal" role="dialog" aria-modal="true" aria-labelledby="ctfModalTitle">
     <div class="modal-content">
-      <button class="close-modal" aria-label="Close">×</button>
-      <h2>My CTFs</h2>
-      <div class="ctf-grid" id="ctfGrid"></div>
+      <button class="close-modal" aria-label="Close modal">×</button>
+      <h2 id="ctfModalTitle">My CTFs</h2>
+      <div class="ctf-grid" id="ctfGrid" role="list"></div>
     </div>
   </div>
 
