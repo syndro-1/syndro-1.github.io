@@ -73,9 +73,9 @@ const myCTFs = [
   },
   {
     name: "NiteCTF 2025",
-    solves: "1 solves",
+    solves: "2 solves",
     status: "Ended",
-    link: "CTF/Nite2025/GraphGrief.html"
+    link: "CTF/Nite2025/Nite2025.html"
   }
 ];
 
