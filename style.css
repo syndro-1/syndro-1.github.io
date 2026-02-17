@@ -1,3 +1,4 @@
+/* style.css */
 :root {
   --bg: #0f172a;
   --surface: #1e293b;
@@ -363,7 +364,17 @@ body {
   font-size: 0.9rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
+@media (max-width: 1023px) {
+  .labs-toggle {
+    bottom: 4.5rem;
+  }
+}
 
+@media (min-width: 1024px) {
+  .labs-toggle {
+    top: 4.5rem;
+  }
+}
 .ctf-toggle:hover { 
   background: var(--accent); 
   color: #000;
@@ -1034,4 +1045,93 @@ body {
     box-shadow: none !important;
     border: 1px solid #ccc !important;
   }
+}
+
+@media (max-width: 1023px) {
+  .ctf-toggle.labs-toggle {
+    bottom: 4.7rem; /* pushes Labs button above CTF button */
+  }
+}
+
+@media (min-width: 1024px) {
+  .ctf-toggle.labs-toggle {
+    top: 4.1rem; /* pushes Labs button below CTF button */
+  }
+}
+
+/* =========================================================
+   Labs modal layout (scroll container + grids)
+========================================================= */
+#labsModal .labs-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+#labsModal .modal-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+#labsModal .modal-section-title {
+  margin: 0 0 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#labsModal .labs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 900px) {
+  #labsModal .labs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Reusable small tag for labs */
+.mini-tag {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-right: 0.6rem;
+}
+
+/* New tags for labs */
+.tag-rev { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
+.tag-osint { background: linear-gradient(135deg, #22c55e, #166534); }
+
+/* Labs card details */
+#labsModal .ctf-card {
+  min-height: unset;
+  cursor: default;
+}
+
+#labsModal .ctf-card.is-link {
+  cursor: pointer;
+}
+
+.lab-sub {
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.lab-bullets {
+  margin-top: 0.75rem;
+  padding-left: 1.25rem;
+  color: var(--text-muted);
+}
+
+.lab-bullets li {
+  margin: 0.4rem 0;
 }

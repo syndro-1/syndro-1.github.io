@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,6 +108,11 @@ referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
       My CTFs
     </button>
 
+    <!-- Labs / Machines Button -->
+    <button class="ctf-toggle labs-toggle" id="labsToggle" aria-label="View my labs and machines">
+      Labs / Machines
+    </button>
+
     <!-- Hero Section -->
     <header class="hero reveal">
       <h1 class="hero-title">Syndro</h1>
@@ -141,13 +147,30 @@ referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
   </main>
 
   <!-- My CTFs Modal -->
-  <div class="modal" id="ctfModal" role="dialog" aria-modal="true" aria-labelledby="ctfModalTitle">
-    <div class="modal-content">
-      <button class="close-modal" aria-label="Close modal">×</button>
-      <h2 id="ctfModalTitle">My CTFs</h2>
-      <div class="ctf-grid" id="ctfGrid" role="list"></div>
+
+<div class="modal" id="ctfModal" role="dialog" aria-modal="true" aria-labelledby="ctfModalTitle">
+  <div class="modal-content">
+    <button class="close-modal" data-close="ctfModal" aria-label="Close modal">×</button>
+    <h2 id="ctfModalTitle">My CTFs</h2>
+    <div class="ctf-grid" id="ctfGrid" role="list"></div>
+  </div>
+</div>
+
+<!-- Labs / Machines Modal -->
+<div class="modal" id="labsModal" role="dialog" aria-modal="true" aria-labelledby="labsModalTitle">
+  <div class="modal-content">
+    <button class="close-modal" data-close="labsModal" aria-label="Close modal">×</button>
+    <h2 id="labsModalTitle">Labs / Machines</h2>
+
+    <div class="labs-scroll">
+      <div class="modal-section">
+        <div class="modal-section-title">Platforms</div>
+        <div class="labs-grid" id="labsPlatformsGrid" role="list"></div>
+      </div>
     </div>
   </div>
+</div>
+
 
   <script src="script.js"></script>
 </body>

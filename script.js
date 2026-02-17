@@ -1,3 +1,4 @@
+// script.js
 // Particles Background
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
@@ -113,12 +114,17 @@ const myCTFs = [
   { name: "PatriotCTF 2025", solves: "7+ solves", status: "Ended", link: "CTF/PatriotCTF2025/patriotctf2025.html" },
   { name: "NiteCTF 2025", solves: "2 solves", status: "Ended", link: "CTF/Nite2025/Nite2025.html" }
 ];
+const labPlatforms = [
+  { platform: "Hack The Box", username: "", status: "InActive", link: "" },
+  { platform: "TryHackMe", username: "aycoo", status: "Active", link: "CTF/TryHackMe/Tryhackme.html" }
+];
 
 // DOM Elements
 const challengeCards = document.getElementById('challengeCards');
 const categoryBadges = document.getElementById('category-badges');
 const recentSolvesList = document.getElementById('recentSolvesList');
 const ctfGrid = document.getElementById('ctfGrid');
+const labsPlatformsGrid = document.getElementById('labsPlatformsGrid');
 const searchBar = document.getElementById('searchBar');
 
 function populateMyCTFs() {
@@ -130,6 +136,29 @@ function populateMyCTFs() {
     </div>
   `).join('');
 }
+
+function populateLabs() {
+  // Platforms
+  if (labsPlatformsGrid) {
+    labsPlatformsGrid.innerHTML = labPlatforms.map(p => {
+      const clickable = p.link && p.link.trim().length > 0;
+      const attrs = clickable
+        ? `class="ctf-card is-link" role="listitem" tabindex="0"
+           onclick="location.href='${p.link}'"
+           onkeydown="if(event.key==='Enter') location.href='${p.link}'"`
+        : `class="ctf-card" role="listitem" tabindex="0"`;
+
+      return `
+        <div ${attrs}>
+          <h3>${p.platform}</h3>
+          <p class="lab-sub">Username: <strong>${p.username}</strong></p>
+          <p class="status">${p.status || "Active"}</p>
+        </div>
+      `;
+    }).join('');
+  }
+  }
+
 
 // Category Badges
 function updateCategoryStats() {
@@ -237,23 +266,32 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // Modal
-document.getElementById('ctfToggle')?.addEventListener('click', () => {
-  document.getElementById('ctfModal').classList.add('open');
+const openModal = (id) => document.getElementById(id)?.classList.add('open');
+const closeModal = (id) => document.getElementById(id)?.classList.remove('open');
+
+document.getElementById('ctfToggle')?.addEventListener('click', () => openModal('ctfModal'));
+document.getElementById('labsToggle')?.addEventListener('click', () => openModal('labsModal'));
+
+// Close buttons
+document.querySelectorAll('.close-modal[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.close));
 });
 
-document.querySelector('.close-modal')?.addEventListener('click', () => {
-  document.getElementById('ctfModal').classList.remove('open');
+// Click outside modal-content closes
+['ctfModal', 'labsModal'].forEach(id => {
+  const modal = document.getElementById(id);
+  modal?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal(id);
+  });
 });
 
-document.getElementById('ctfModal')?.addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) document.getElementById('ctfModal').classList.remove('open');
-});
-
+// ESC closes any open modal
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.getElementById('ctfModal').classList.contains('open')) {
-    document.getElementById('ctfModal').classList.remove('open');
-  }
+  if (e.key !== 'Escape') return;
+  closeModal('ctfModal');
+  closeModal('labsModal');
 });
+
 
 // Feedback Form
 document.getElementById('feedbackForm')?.addEventListener('submit', async function(e) {
@@ -303,4 +341,5 @@ window.addEventListener('load', () => {
   updateCategoryStats();
   populateRecentSolves();
   populateMyCTFs();
+  populateLabs();
 });

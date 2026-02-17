@@ -1,0 +1,25 @@
+# Nmap 7.98 scan initiated Tue Feb 17 11:18:23 2026 as: nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap 10.80.139.58
+Nmap scan report for cloudsite.thm (10.80.139.58)
+Host is up (0.086s latency).
+Not shown: 65531 closed tcp ports (conn-refused)
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.10 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 3f:da:55:0b:b3:a9:3b:09:5f:b1:db:53:5e:0b:ef:e2 (ECDSA)
+|_  256 b7:d3:2e:a7:08:91:66:6b:30:d2:0c:f7:90:cf:9a:f4 (ED25519)
+80/tcp    open  http    Apache httpd 2.4.52
+|_http-title: Site doesn't have a title (text/html).
+| http-methods: 
+|_  Supported Methods: GET POST OPTIONS HEAD
+|_http-server-header: Apache/2.4.52 (Ubuntu)
+4369/tcp  open  epmd    Erlang Port Mapper Daemon
+| epmd-info: 
+|   epmd_port: 4369
+|   nodes: 
+|_    rabbit: 25672
+25672/tcp open  unknown
+Service Info: Host: 127.0.1.1; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Tue Feb 17 11:21:21 2026 -- 1 IP address (1 host up) scanned in 178.42 seconds

