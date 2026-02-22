@@ -1,0 +1,28 @@
+# Nmap 7.98 scan initiated Sun Feb 22 15:04:11 2026 as: nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap 10.114.188.53
+Nmap scan report for 10.114.188.53
+Host is up (0.084s latency).
+Not shown: 65532 closed tcp ports (conn-refused)
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 44:0e:60:ab:1e:86:5b:44:28:51:db:3f:9b:12:21:77 (RSA)
+|   256 59:2f:70:76:9f:65:ab:dc:0c:7d:c1:a2:a3:4d:e6:40 (ECDSA)
+|_  256 10:9f:0b:dd:d6:4d:c7:7a:3d:ff:52:42:1d:29:6e:ba (ED25519)
+80/tcp   open  http    Apache httpd 2.4.29 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET POST OPTIONS HEAD
+|_http-title: Book Store
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-favicon: Unknown favicon MD5: 834559878C5590337027E6EB7D966AEE
+5000/tcp open  http    Werkzeug httpd 0.14.1 (Python 3.6.9)
+| http-robots.txt: 1 disallowed entry 
+|_/api </p> 
+| http-methods: 
+|_  Supported Methods: GET HEAD OPTIONS
+|_http-server-header: Werkzeug/0.14.1 Python/3.6.9
+|_http-title: Home
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sun Feb 22 15:04:51 2026 -- 1 IP address (1 host up) scanned in 40.68 seconds

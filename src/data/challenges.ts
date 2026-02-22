@@ -37,7 +37,7 @@ export interface LabPlatform {
 }
 
 export const labPlatforms: LabPlatform[] = [
-  { platform: "Hack The Box", username: "", status: "InActive", route: "/hackthebox" },
+  { platform: "Hack The Box", username: "", status: "Active", route: "/hackthebox" },
   { platform: "TryHackMe", username: "aycoo", status: "Active", route: "/tryhackme" },
 ];
 
@@ -52,19 +52,19 @@ export interface THMChallenge {
 export const thmChallenges: THMChallenge[] = [
   { title: "Valley", difficulty: "easy", hasWriteup: true, slug: "valley" },
   { title: "RabbitStore", difficulty: "medium", hasWriteup: true, slug: "rabbitstore" },
-  { title: "0day", difficulty: "medium", note: "To be added", hasWriteup: false },
-  { title: "Bookstore", difficulty: "medium", note: "To be added", hasWriteup: false },
+  { title: "0day", difficulty: "medium", hasWriteup: true, slug: "0day" },
+  { title: "Blueprint", difficulty: "easy", hasWriteup: true, slug: "blueprint" },
+  { title: "Bookstore", difficulty: "medium", hasWriteup: true, slug: "bookstore" },
+  { title: "Mr Robot", difficulty: "medium", hasWriteup: true, slug: "mr-robot" },
   { title: "Athena", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "Wonderland", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "Inferno", difficulty: "medium", note: "To be added", hasWriteup: false },
-  { title: "Mr Robot CTF", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "Boiler CTF", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "U.A. High School", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "LazyAdmin", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Billing", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Neighbour", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Year of the rabbit", difficulty: "easy", note: "To be added", hasWriteup: false },
-  { title: "Blueprint", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Pyrat", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Simple CTF", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Root me", difficulty: "easy", note: "To be added", hasWriteup: false },

@@ -1,0 +1,36 @@
+# Nmap 7.98 scan initiated Sun Feb 22 20:24:09 2026 as: nmap -T4 -p- -A -r -v -sV -oN scan.nmap 10.114.186.95
+Nmap scan report for 10.114.186.95
+Host is up (0.072s latency).
+Not shown: 65532 filtered tcp ports (no-response)
+PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 8.2p1 Ubuntu 4ubuntu0.13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 6a:fa:ff:bb:ad:4f:61:34:e5:e1:a9:bd:b0:73:29:a2 (RSA)
+|   256 1c:a3:f0:aa:2a:5f:f9:e9:16:9a:0a:8a:36:86:9e:1a (ECDSA)
+|_  256 d8:33:c4:4f:d1:e6:29:d6:e7:44:ca:87:ad:ae:55:56 (ED25519)
+80/tcp  open  http     Apache httpd
+|_http-server-header: Apache
+| http-methods: 
+|_  Supported Methods: GET HEAD OPTIONS
+|_http-favicon: Unknown favicon MD5: D41D8CD98F00B204E9800998ECF8427E
+443/tcp open  ssl/http Apache httpd
+|_http-server-header: Apache
+|_http-title: 400 Bad Request
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=www.example.com
+| Issuer: commonName=www.example.com
+| Public Key type: rsa
+| Public Key bits: 1024
+| Signature Algorithm: sha1WithRSAEncryption
+| Not valid before: 2015-09-16T10:45:03
+| Not valid after:  2025-09-13T10:45:03
+| MD5:     3c16 3b19 87c3 42ad 6634 c1c9 d0aa fb97
+| SHA-1:   ef0c 5fa5 931a 09a5 687c a2c2 80c4 c792 07ce f71b
+|_SHA-256: 37a8 b3f1 9d82 8a07 e93c a297 70aa 4146 8004 451e c6b9 c779 be0b 44b3 d276 3bd8
+| http-methods: 
+|_  Supported Methods: GET HEAD POST
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sun Feb 22 20:26:41 2026 -- 1 IP address (1 host up) scanned in 151.93 seconds

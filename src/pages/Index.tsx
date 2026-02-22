@@ -45,7 +45,9 @@ const Index = () => {
           (c) =>
             c.title.toLowerCase().includes(search.toLowerCase()) ||
             c.flag.toLowerCase().includes(search.toLowerCase())
-        ),
+        )
+        .slice()
+        .reverse(),
     [activeTab, search]
   );
 

@@ -38,11 +38,9 @@ const shortLabel = (s: string) => {
 
 type Props = {
   items: SectionChipItem[];
-  /** If true, only include top-level (h2) items when available */
   preferTopLevel?: boolean;
 };
 
-/** RabbitStore-style section chips for quick navigation. */
 export default function SectionChips({ items, preferTopLevel = true }: Props) {
   const chips = useMemo(() => {
     const list = (items || []).filter(Boolean);
@@ -80,8 +78,8 @@ export default function SectionChips({ items, preferTopLevel = true }: Props) {
   if (!chips.length) return null;
 
   return (
-    <div className="mt-6 bg-card/50 glass border border-border/60 rounded-2xl p-3">
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+    <div className="mt-4 bg-card/50 glass border border-border/60 rounded-2xl p-3">
+      <div className="flex flex-wrap items-center gap-2 py-1">
         {chips.slice(0, 18).map((h) => {
           const { badge, label } = parseStep(h.text);
           const isActive = activeId === h.id;
@@ -91,10 +89,9 @@ export default function SectionChips({ items, preferTopLevel = true }: Props) {
               onClick={() => {
                 const el = document.getElementById(h.id);
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                window.history.replaceState(null, "", `${window.location.pathname}#${h.id}`);
               }}
               className={
-                "shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-mono uppercase tracking-[0.22em] transition-colors " +
+                "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-mono uppercase tracking-[0.22em] transition-colors " +
                 (isActive
                   ? "border-primary/50 bg-primary/10 text-primary shadow-[0_0_22px_hsl(var(--neon-glow))]"
                   : "border-border/60 bg-background/15 text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5")

