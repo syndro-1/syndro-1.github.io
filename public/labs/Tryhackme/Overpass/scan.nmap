@@ -1,0 +1,20 @@
+# Nmap 7.98 scan initiated Mon Feb 23 14:02:20 2026 as: nmap -T4 -p- -A -r -v -sV -oN scan.nmap 10.112.137.118
+Nmap scan report for 10.112.137.118
+Host is up (0.090s latency).
+Not shown: 65533 closed tcp ports (conn-refused)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 b5:29:5a:23:c8:12:87:20:78:da:fd:8a:5c:d2:2d:1c (RSA)
+|   256 72:2b:e5:e3:50:10:42:81:13:e4:3d:34:54:2e:5c:f8 (ECDSA)
+|_  256 68:a6:9b:3e:db:8c:62:36:fb:d6:02:d3:12:df:ff:fb (ED25519)
+80/tcp open  http    Golang net/http server (Go-IPFS json-rpc or InfluxDB API)
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Overpass
+|_http-favicon: Unknown favicon MD5: 0D4315E5A0B066CEFD5B216C8362564B
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Mon Feb 23 14:03:07 2026 -- 1 IP address (1 host up) scanned in 46.83 seconds

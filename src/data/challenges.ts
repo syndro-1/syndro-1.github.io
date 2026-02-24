@@ -56,8 +56,10 @@ export const thmChallenges: THMChallenge[] = [
   { title: "Blueprint", difficulty: "easy", hasWriteup: true, slug: "blueprint" },
   { title: "Bookstore", difficulty: "medium", hasWriteup: true, slug: "bookstore" },
   { title: "Mr Robot", difficulty: "medium", hasWriteup: true, slug: "mr-robot" },
-  { title: "Athena", difficulty: "medium", note: "To be added", hasWriteup: false },
-  { title: "Wonderland", difficulty: "medium", note: "To be added", hasWriteup: false },
+  { title: "Athena", difficulty: "medium", hasWriteup: true, slug: "athena" },
+  { title: "Wonderland", difficulty: "medium", hasWriteup: true, slug: "wonderland" },
+  { title: "OverPass", difficulty: "easy", hasWriteup: true, slug: "overpass" },
+  { title: "Chocolate factory", difficulty: "easy", hasWriteup: true, slug: "chocolate-factory" },
   { title: "Inferno", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "Boiler CTF", difficulty: "medium", note: "To be added", hasWriteup: false },
   { title: "U.A. High School", difficulty: "easy", note: "To be added", hasWriteup: false },
@@ -69,8 +71,6 @@ export const thmChallenges: THMChallenge[] = [
   { title: "Simple CTF", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Root me", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Bounty hacker", difficulty: "easy", note: "To be added", hasWriteup: false },
-  { title: "OverPass", difficulty: "easy", note: "To be added", hasWriteup: false },
-  { title: "Chocolate factory", difficulty: "easy", note: "To be added", hasWriteup: false },
   { title: "Startup", difficulty: "easy", note: "To be added", hasWriteup: false },
 ];
 
